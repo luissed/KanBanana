@@ -42,10 +42,10 @@ class Login():
                 )
             )
         )
-        if not usuario or senha:
-            if len(registro.content.controls[0].content.controls) < 7:
+        if len(usuario.strip()) == 0 or len(senha.strip()) == 0:
+                if len(registro.content.controls[0].content.controls) < 7:
                     registro.content.controls[0].content.controls.append(alerta_preenchimento)
-            else:
+        else:
                 arquivo.write(f'{usuario}, {senha}\n')
                 self.tela_certa(usuario)
         self.page.update()
