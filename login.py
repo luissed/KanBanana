@@ -362,11 +362,3 @@ class Login():
             expand=True,
         )
         self.page.add(prx)
-
-def main(page: ft.Page):
-    page.title = 'KanBanana'
-    page.theme_mode = 'light'
-    page.padding=0
-    app=Login(page)
-
-ft.app(target=main, assets_dir='assets')
