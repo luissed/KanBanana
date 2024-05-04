@@ -33,11 +33,23 @@ class Login():
                 )
             )
         )
-        if usuarioExiste and senhaExiste:
-            self.page.go('/')
-        else:
+        alerta_preenchimento = ft.Container(
+            content=(
+                ft.Text(
+                    value='Por favor, preencha todos os campos',
+                    color=ft.colors.RED
+                )
+            )
+        )
+        if len(usuario.strip()) == 0 or len(senha.strip()) == 0:
             if len(login.content.controls[0].content.controls) < 7:
-                login.content.controls[0].content.controls.append(alerta)
+                login.content.controls[0].content.controls.append(alerta_preenchimento)
+        else:
+            if usuarioExiste and senhaExiste:
+                self.page.go('/')
+            else:
+                if len(login.content.controls[0].content.controls) < 7:
+                    login.content.controls[0].content.controls.append(alerta)
         self.page.update()
     
     def tela_login(self):
@@ -72,10 +84,11 @@ class Login():
                                                     border_color=ft.colors.BLACK87,
                                                     autofocus=True,
                                                     label_style=ft.TextStyle(
-                                                        color=ft.colors.BLACK87,
+                                                        color=ft.colors.BLACK54,
                                                         weight=ft.FontWeight.BOLD, 
-                                                        font_family='Annai MN'
-                                                        ),
+                                                        font_family='Annai MN',
+                                                        size=14
+                                                    ),
                                                     text_style=ft.TextStyle(font_family='Annai MN'),
                                                     cursor_height=15,
                                                     cursor_width=1,
@@ -94,9 +107,11 @@ class Login():
                                                     label='Senha',
                                                     border_color=ft.colors.BLACK87,
                                                     label_style=ft.TextStyle(
-                                                        color=ft.colors.BLACK87,
+                                                        color=ft.colors.BLACK54,
                                                         weight=ft.FontWeight.BOLD,
-                                                        font_family='Annai MN'),
+                                                        font_family='Annai MN',
+                                                        size=14
+                                                    ),
                                                     cursor_height=15,
                                                     cursor_width=1,
                                                     cursor_color=ft.colors.BLACK87,
@@ -114,27 +129,41 @@ class Login():
                                                     ft.MaterialState.DEFAULT: ft.colors.BLACK87,
                                                     ft.MaterialState.HOVERED: ft.colors.WHITE
                                                 },
-                                                overlay_color=ft.colors.BLACK87,
-                                                bgcolor=ft.colors.WHITE,
+                                                bgcolor={
+                                                    ft.MaterialState.DEFAULT: ft.colors.WHITE,
+                                                    ft.MaterialState.HOVERED: ft.colors.BLACK87
+                                                },
                                                 shape=ft.RoundedRectangleBorder(radius=10)
                                             ),
                                             icon=ft.icons.LOGIN,
                                             width=200,
                                             on_click=lambda _: self.entrar(login)
                                         ),
-                                        ft.FilledButton(
-                                            text='Registre-se',
-                                            style=ft.ButtonStyle(
-                                                color={
-                                                    ft.MaterialState.DEFAULT: ft.colors.BLACK87,
-                                                    ft.MaterialState.HOVERED: ft.colors.WHITE
-                                                },
-                                                overlay_color=ft.colors.BLACK87,
-                                                bgcolor=ft.colors.WHITE,
-                                                shape=ft.RoundedRectangleBorder(radius=10)
-                                            ),
-                                            width=200,
-                                            on_click=lambda _: self.page.go('/registro')
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(
+                                                    value='Não tem uma conta?',
+                                                    style=ft.TextStyle(
+                                                        color=ft.colors.BLACK87
+                                                    ),
+                                                    size=14
+                                                ),
+                                                ft.TextButton(
+                                                    text='Registre-se',
+                                                    style=ft.ButtonStyle(
+                                                        color={
+                                                            ft.MaterialState.DEFAULT: ft.colors.BLACK54,
+                                                            ft.MaterialState.HOVERED: ft.colors.WHITE
+                                                        },
+                                                        bgcolor={
+                                                            ft.MaterialState.DEFAULT: ft.colors.TRANSPARENT,
+                                                            ft.MaterialState.HOVERED: ft.colors.BLACK87
+                                                        }
+                                                    ),
+                                                    on_click=lambda _: self.page.go('/registro')
+                                                )
+                                            ],
+                                            alignment=ft.MainAxisAlignment.CENTER,
                                         )
                                     ],
                                     alignment=ft.MainAxisAlignment.CENTER,

@@ -1,31 +1,29 @@
 import flet as ft
+from typing import Type
 from login import Login
 from registro import Registrar
 from principal import Principal
 
-def views_handler(page: ft.Page):
-    pri = Principal(page)
-    log = Login(page)
-    reg = Registrar(page)
+def views_handler(page: ft.Page, login: Type[Login], registro: Type[Registrar], principal: Type[Principal]):
     return {
         '/':ft.View(
             route='/',
             controls=[
-                pri.tela()
+                principal.tela()
             ],
             padding=0
         ),
         '/login':ft.View(
             route='/login',
             controls=[
-                log.tela_login()
+                login.tela_login()
             ],
             padding=0
         ),
         '/registro':ft.View(
             route='/registro',
             controls=[
-                reg.tela_registro()
+                registro.tela_registro()
             ],
             padding=0
         )

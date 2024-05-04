@@ -1,5 +1,26 @@
 import flet as ft
 
+#Variáveis globais:
+"""--------------------------------------------------------------"""
+alerta = ft.Container(
+    content=(
+        ft.Text(
+            value='Usuário já existe',
+            color=ft.colors.RED
+        )
+    )
+)
+
+alerta_preenchimento = ft.Container(
+    content=(
+        ft.Text(
+            value='Por favor, preencha todos os campos',
+            color=ft.colors.RED
+        )
+    )
+)
+"""--------------------------------------------------------------"""
+
 class Registrar():
     def __init__(self, page: ft.Page):
         self.page = page
@@ -20,23 +41,26 @@ class Registrar():
         senha = registro.content.controls[0].content.controls[3].content.value
         registro.content.controls[0].content.controls[2].content.value = f''
         registro.content.controls[0].content.controls[3].content.value = f''
-        alerta = ft.Container(
-            content=(
-                ft.Text(
-                    value='Usuário já existe',
-                    color=ft.colors.RED
-                )
-            )
-        )
-        usuarioExiste = self.verificaUsuario(usuario)
-        if usuarioExiste:
+        if len(usuario.strip()) == 0 or len(senha.strip()) == 0:
             if len(registro.content.controls[0].content.controls) < 7:
-                registro.content.controls[0].content.controls.append(alerta)
+                registro.content.controls[0].content.controls.append(alerta_preenchimento)
+            elif len(registro.content.controls[0].content.controls) == 7:
+                registro.content.controls[0].content.controls.pop()
+                registro.content.controls[0].content.controls.append(alerta_preenchimento)
             self.page.update()
         else:
-            with open ('arquivo.txt','r+') as arquivo:
-                arquivo.write(f'{usuario}, {senha}\n')
-            self.page.go('/')
+            usuarioExiste = self.verificaUsuario(usuario)
+            if usuarioExiste:
+                if len(registro.content.controls[0].content.controls) < 7:
+                    registro.content.controls[0].content.controls.append(alerta)
+                elif len(registro.content.controls[0].content.controls) == 7:
+                    registro.content.controls[0].content.controls.pop()
+                    registro.content.controls[0].content.controls.append(alerta)
+                self.page.update()
+            else:
+                with open ('arquivo.txt','r+') as arquivo:
+                    arquivo.write(f'{usuario}, {senha}\n')
+                self.page.go('/')
     
     def tela_registro(self):
         registro = ft.Container(
@@ -70,9 +94,10 @@ class Registrar():
                                                     border_color=ft.colors.BLACK87,
                                                     autofocus=True,
                                                     label_style=ft.TextStyle(
-                                                        color=ft.colors.BLACK87,
+                                                        color=ft.colors.BLACK54,
                                                         weight=ft.FontWeight.BOLD,
-                                                        font_family='Annai MN'
+                                                        font_family='Annai MN',
+                                                        size=14
                                                     ),
                                                     text_style=ft.TextStyle(font_family='Annai MN'),
                                                     cursor_height=15,
@@ -91,9 +116,10 @@ class Registrar():
                                                     label='Senha',
                                                     border_color=ft.colors.BLACK87,
                                                     label_style=ft.TextStyle(
-                                                        color=ft.colors.BLACK87,
+                                                        color=ft.colors.BLACK54,
                                                         weight=ft.FontWeight.BOLD,
-                                                        font_family='Annai MN'
+                                                        font_family='Annai MN',
+                                                        size=14
                                                     ),
                                                     text_style=ft.TextStyle(font_family='Annai MN'),
                                                     cursor_height=15,
