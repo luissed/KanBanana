@@ -86,6 +86,7 @@ class Principal(ft.SafeArea):
     def switch(self, e) -> None:
         if self.page.theme_mode == ft.ThemeMode.DARK:
             self.page.theme_mode = ft.ThemeMode.LIGHT
+            self.toggle.icon = ft.icons.DARK_MODE_ROUNDED
             self.toggle.icon_color = ft.colors.BLACK87
             self.add.icon_color = ft.colors.BLACK87
             self.item.border_color = _light
@@ -111,6 +112,7 @@ class Principal(ft.SafeArea):
 
         else:
             self.page.theme_mode = ft.ThemeMode.DARK
+            self.toggle.icon = ft.icons.LIGHT_MODE_ROUNDED
             self.toggle.icon_color = ft.colors.WHITE
             self.add.icon_color = ft.colors.WHITE
             self.item.border_color = _dark
