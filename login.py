@@ -1,12 +1,13 @@
 import flet as ft
+from styles import alerta
 
 class Login():
-    def __init__(self, page: ft.Page):
+    def __init__(self, page: ft.Page) -> None:
         self.page = page
+        self.usuario = ''
+        self.senha = ''
 
-    def verificaUsuario(self, usuario, senha):
-        self.usuario = usuario
-        self.senha = senha
+    def verificaUsuario(self) -> bool:
         usuarioExiste = False
         senhaExiste = False
         with open('arquivo.txt', 'r') as arquivo:
@@ -18,41 +19,35 @@ class Login():
                         senhaExiste = True
                     break
         return(usuarioExiste, senhaExiste)
-
-    def entrar(self,login):
-        usuario = login.content.controls[0].content.controls[2].content.value
-        senha = login.content.controls[0].content.controls[3].content.value
+    
+    def entrar(self, login: ft.Container) -> None:
+        self.usuario = login.content.controls[0].content.controls[2].content.value
+        self.senha = login.content.controls[0].content.controls[3].content.value
         login.content.controls[0].content.controls[2].content.value = f''
         login.content.controls[0].content.controls[3].content.value = f''
-        usuarioExiste, senhaExiste = self.verificaUsuario(usuario, senha)
-        alerta = ft.Container(
-            content=(
-                ft.Text(
-                    value='Usuário e senha incorreta',
-                    color=ft.colors.RED
-                )
-            )
-        )
-        alerta_preenchimento = ft.Container(
-            content=(
-                ft.Text(
-                    value='Por favor, preencha todos os campos',
-                    color=ft.colors.RED
-                )
-            )
-        )
-        if len(usuario.strip()) == 0 or len(senha.strip()) == 0:
+        usuarioExiste, senhaExiste = self.verificaUsuario()
+        if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
             if len(login.content.controls[0].content.controls) < 7:
-                login.content.controls[0].content.controls.append(alerta_preenchimento)
+                login.content.controls[0].content.controls.append(alerta['preenchimento'])
+            elif len(login.content.controls[0].content.controls) == 7:
+                login.content.controls[0].content.controls.pop()
+                login.content.controls[0].content.controls.append(alerta['preenchimento'])
         else:
             if usuarioExiste and senhaExiste:
                 self.page.go('/')
             else:
                 if len(login.content.controls[0].content.controls) < 7:
-                    login.content.controls[0].content.controls.append(alerta)
+                    login.content.controls[0].content.controls.append(alerta['login'])
+                elif len(login.content.controls[0].content.controls) == 7:
+                    login.content.controls[0].content.controls.pop()
+                    login.content.controls[0].content.controls.append(alerta['login'])
         self.page.update()
-    
-    def tela_login(self):
+
+    def get_usuario(self) -> str:
+        return self.usuario
+
+    def tela_login(self) -> ft.Container:
+        self.page.theme_mode = ft.ThemeMode.LIGHT
         login = ft.Container(
             content=(
                 ft.Row(

@@ -1,32 +1,11 @@
 import flet as ft
-
-#Variáveis globais:
-"""--------------------------------------------------------------"""
-alerta = ft.Container(
-    content=(
-        ft.Text(
-            value='Usuário já existe',
-            color=ft.colors.RED
-        )
-    )
-)
-
-alerta_preenchimento = ft.Container(
-    content=(
-        ft.Text(
-            value='Por favor, preencha todos os campos',
-            color=ft.colors.RED
-        )
-    )
-)
-"""--------------------------------------------------------------"""
+from styles import alerta
 
 class Registrar():
-    def __init__(self, page: ft.Page):
+    def __init__(self, page: ft.Page) -> None:
         self.page = page
     
-    def verificaUsuario(self, usuario):
-        self.usuario = usuario
+    def verificaUsuario(self):
         usuarioExiste = False
         with open('arquivo.txt', 'r') as arquivo:
             for linha in arquivo:
@@ -37,32 +16,33 @@ class Registrar():
         return(usuarioExiste)
     
     def registrar(self, registro):
-        usuario = registro.content.controls[0].content.controls[2].content.value
-        senha = registro.content.controls[0].content.controls[3].content.value
+        self.usuario = registro.content.controls[0].content.controls[2].content.value
+        self.senha = registro.content.controls[0].content.controls[3].content.value
         registro.content.controls[0].content.controls[2].content.value = f''
         registro.content.controls[0].content.controls[3].content.value = f''
-        if len(usuario.strip()) == 0 or len(senha.strip()) == 0:
+        if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
             if len(registro.content.controls[0].content.controls) < 7:
-                registro.content.controls[0].content.controls.append(alerta_preenchimento)
+                registro.content.controls[0].content.controls.append(alerta['preenchimento'])
             elif len(registro.content.controls[0].content.controls) == 7:
                 registro.content.controls[0].content.controls.pop()
-                registro.content.controls[0].content.controls.append(alerta_preenchimento)
+                registro.content.controls[0].content.controls.append(alerta['preenchimento'])
             self.page.update()
         else:
-            usuarioExiste = self.verificaUsuario(usuario)
+            usuarioExiste = self.verificaUsuario()
             if usuarioExiste:
                 if len(registro.content.controls[0].content.controls) < 7:
-                    registro.content.controls[0].content.controls.append(alerta)
+                    registro.content.controls[0].content.controls.append(alerta['registro'])
                 elif len(registro.content.controls[0].content.controls) == 7:
                     registro.content.controls[0].content.controls.pop()
-                    registro.content.controls[0].content.controls.append(alerta)
+                    registro.content.controls[0].content.controls.append(alerta['registro'])
                 self.page.update()
             else:
-                with open ('arquivo.txt','r+') as arquivo:
-                    arquivo.write(f'{usuario}, {senha}\n')
-                self.page.go('/')
+                with open ('arquivo.txt','a') as arquivo:
+                    arquivo.write(f'{self.usuario}, {self.senha}\n')
+                self.page.go('/login')
     
     def tela_registro(self):
+        self.page.theme_mode = ft.ThemeMode.LIGHT
         registro = ft.Container(
             content=(
                 ft.Row(
