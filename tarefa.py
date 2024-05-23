@@ -35,7 +35,7 @@ class Tarefa(ft.Container):
             ],
         )
 
-    def strike(self, e):
+    def strike(self, e) -> None:
         if e.control.value == True:
             self.text.spans[0].style = ft.TextStyle(
                 decoration=ft.TextDecoration.LINE_THROUGH, decoration_thickness=2
@@ -45,7 +45,7 @@ class Tarefa(ft.Container):
 
         self.text.update()
 
-    def delete_text(self, e):
+    def delete_text(self, e) -> None:
         self.tela_tarefa.area_tarefas.controls.remove(self)
         self.tela_tarefa.area_tarefas.update()
         self.tela_tarefa.item_size()

@@ -9,14 +9,18 @@ def main(page: ft.Page):
     page.theme_mode = 'light'
     page.window_min_height = 600
     page.window_min_width = 400
+
+    login = Login(page)
+    registro = Registrar(page)
+    principal = Principal(page)
     
-    def route_change(route):
+    def route_change(route) -> None:
         page.views.clear()
         page.views.append(
-            views_handler(page, Login(page), Registrar(page), Principal(page))[page.route]
+            views_handler(page, login, registro, principal)[page.route]
         )
         page.update()
-    
+
     page.on_route_change = route_change
     page.go('/login')
 
