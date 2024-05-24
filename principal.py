@@ -10,7 +10,7 @@ class Principal(ft.SafeArea):
         self.toggle: ft.IconButton = ft.IconButton(**toggle_style_sheet, on_click=lambda e: self.switch(e))
 
         self.item: ft.TextField = ft.TextField(**item_style_sheet)
-        self.add: ft.IconButton = ft.IconButton(**add_style_sheet, on_click=lambda e: self.add_item(e))
+        self.add: ft.IconButton = ft.IconButton(**add_style_sheet, on_click=self.add_board)
 
         self.area_tarefas: ft.Column = ft.Column(expand=True, spacing=18)
         self.counter: ft.Text = ft.Text("0 itens", italic=True)
@@ -20,18 +20,22 @@ class Principal(ft.SafeArea):
             content=ft.Column(
                 controls=[
                     ft.Row(
-                        alignment="spaceBetween",
-                        controls=[self.title, self.toggle],
+                        alignment="start",
+                        controls=[
+                            self.title, 
+                            ft.Container(
+                                expand=True
+                            ),
+                            self.add, 
+                            self.toggle
+                        ],
                     ),
                     ft.Divider(height=20), 
-                    ft.Divider(height=10, color="transparent"),
-                    ft.Text("1. Adicione sua tarefa abaixo"),
-                    ft.Row(controls=[self.item, self.add], alignment="spaceBetween"),
                     ft.Divider(height=10, color="transparent"),
                     ft.Row(
                         alignment="spaceBetween",
                         controls=[
-                            ft.Text("2. Lista de tarefas"),
+                            ft.Text("Lista de tarefas"),
                             self.counter, 
                         ]
                     ),
@@ -68,17 +72,15 @@ class Principal(ft.SafeArea):
 
         self.counter.update()
 
-    def add_item(self, e) -> None:
-        if self.item.value != "":
+    def add_item(self, dialog_text: str) -> None:
+        if dialog_text != "":
             if self.page.theme_mode == ft.ThemeMode.DARK:
-                self.area_tarefas.controls.append(Tarefa(self, self.item.value, "dark"))
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "dark"))
             else:
-                self.area_tarefas.controls.append(Tarefa(self, self.item.value, "light"))
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "light"))
 
             self.area_tarefas.update()
             self.item_size()
-            self.item.value = ""
-            self.item.update()
 
         else:
             pass
@@ -91,10 +93,13 @@ class Principal(ft.SafeArea):
             self.add.icon_color = ft.colors.BLACK87
             self.item.border_color = _light
 
-            self.page.theme = ft.Theme(
+            self.page.theme=ft.Theme(
                 appbar_theme=ft.AppBarTheme(
                     color=ft.colors.BLACK87,
                     bgcolor=ft.colors.YELLOW
+                ),
+                dialog_theme=ft.DialogTheme(
+                    content_text_style=ft.TextStyle(color=ft.colors.WHITE)
                 )
             )
 
@@ -137,3 +142,86 @@ class Principal(ft.SafeArea):
                 item.border = ft.border.all(1, _dark)
 
         self.page.update()
+
+    def add_board(self, e) -> None:
+        def close_dlg(e):
+            self.add_item(dialog_text.value)
+            dialog.open = False
+            self.page.update()
+
+        def textfield_change(e):
+            if dialog_text.value == "":
+                create_button.disabled = True
+            else:
+                create_button.disabled = False
+            self.page.update()
+
+        dialog_text = TextField(
+            label="Nome da nova tarefa",
+            border_color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+            label_style=ft.TextStyle(
+                color=ft.colors.BLACK54 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+                weight=ft.FontWeight.BOLD,
+                font_family='Arial Rounded MT Bold',
+                size=14
+            ),
+            cursor_height=15,
+            cursor_width=1,
+            cursor_color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+            color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+            border_width=2,
+            on_submit=close_dlg,
+            on_change=textfield_change
+        )
+        create_button = ft.ElevatedButton(
+            text="Criar",
+            style=ft.ButtonStyle(
+                color={
+                    ft.MaterialState.DEFAULT: ft.colors.BLACK87,
+                    ft.MaterialState.HOVERED: ft.colors.WHITE
+                },
+                bgcolor={
+                    ft.MaterialState.DEFAULT: ft.colors.WHITE,
+                    ft.MaterialState.HOVERED: ft.colors.BLACK87,
+                    ft.MaterialState.DISABLED: ft.colors.GREY
+                },
+                shape=ft.RoundedRectangleBorder(radius=5)
+            ),
+            on_click=close_dlg,
+            disabled=True
+        )
+        dialog = AlertDialog(
+            title=ft.Text("Criar nova tarefa"),
+            bgcolor= ft.colors.with_opacity(600000,ft.colors.GREY_100),
+            content=ft.Column(
+                controls=[
+                    dialog_text,
+                    ft.Row(
+                        controls=[
+                            ft.ElevatedButton(
+                                text="Cancelar",
+                                style=ft.ButtonStyle(
+                                    color={
+                                        ft.MaterialState.DEFAULT: ft.colors.WHITE,
+                                        ft.MaterialState.HOVERED: ft.colors.BLACK87
+                                    },
+                                    bgcolor={
+                                        ft.MaterialState.DEFAULT: ft.colors.BLACK87,
+                                        ft.MaterialState.HOVERED: ft.colors.WHITE
+                                    },
+                                    shape=ft.RoundedRectangleBorder(radius=5)
+                                ),
+                                on_click=close_dlg,
+                            ),
+                            create_button,
+                        ],
+                        alignment="spaceBetween",
+                    ),
+                ],
+                tight=True,
+            )
+        )
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+        dialog_text.focus()
