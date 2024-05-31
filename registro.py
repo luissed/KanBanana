@@ -1,25 +1,21 @@
 import flet as ft
 from styles import alerta
+from banco_de_dados import BancoDeDados  
 
 class Registrar():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-    
-    def verificaUsuario(self):
-        usuarioExiste = False
-        with open('arquivo.txt', 'r') as arquivo:
-            for linha in arquivo:
-                usuarioSalvo, _ = linha.strip().split(', ')
-                if usuarioSalvo == self.usuario:
-                    usuarioExiste = True
-                    break
-        return(usuarioExiste)
+        self.bd, self.c = BancoDeDados.conectarAoBanco() 
+
+    def verificaUsuario(self) -> bool:
+        return BancoDeDados.verificarUsuario(self.bd, self.usuario)
     
     def registrar(self, registro):
         self.usuario = registro.content.controls[0].content.controls[2].content.value
         self.senha = registro.content.controls[0].content.controls[3].content.value
         registro.content.controls[0].content.controls[2].content.value = f''
         registro.content.controls[0].content.controls[3].content.value = f''
+        
         if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
             if len(registro.content.controls[0].content.controls) < 7:
                 registro.content.controls[0].content.controls.append(alerta['preenchimento'])
@@ -37,8 +33,7 @@ class Registrar():
                     registro.content.controls[0].content.controls.append(alerta['registro'])
                 self.page.update()
             else:
-                with open ('arquivo.txt','a') as arquivo:
-                    arquivo.write(f'{self.usuario}, {self.senha}\n')
+                BancoDeDados.inserirUsuario(self.bd, self.usuario, self.senha)
                 self.page.go('/login')
     
     def tela_registro(self):
