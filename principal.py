@@ -2,15 +2,20 @@ from flet import *
 import flet as ft
 from styles import _dark, _light, toggle_style_sheet, add_style_sheet, item_style_sheet
 from tarefa import Tarefa
+from login import Login
+from banco_de_dados import BancoDeDados
 
 class Principal(ft.SafeArea):
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self.title: ft.Text = ft.Text("LISTA DE TAREFAS", size=20, weight="w800")
+        self.title: ft.Text = ft.Text("SUAS TAREFAS", size=20, weight="w800")
         self.toggle: ft.IconButton = ft.IconButton(**toggle_style_sheet, on_click=lambda e: self.switch(e))
 
         self.item: ft.TextField = ft.TextField(**item_style_sheet)
         self.add: ft.IconButton = ft.IconButton(**add_style_sheet, on_click=self.add_board)
+
+        self.bd, self.cursor = BancoDeDados.conectarAoBanco()
+        self.usuario_logado = None
 
         self.area_tarefas: ft.DragTarget = ft.DragTarget(
             content=ft.Column(spacing=18, height=680, scroll="Auto", controls=[ft.Container()]),
@@ -206,6 +211,10 @@ class Principal(ft.SafeArea):
             dialog.open = False
             self.page.update()
 
+        def cancel_dlg(e):
+            dialog.open = False
+            self.page.update()
+
         def textfield_change(e):
             if dialog_text.value == "":
                 create_button.disabled = True
@@ -249,7 +258,7 @@ class Principal(ft.SafeArea):
         )
         dialog = AlertDialog(
             title=ft.Text("Criar nova tarefa"),
-            bgcolor= ft.colors.with_opacity(600000,ft.colors.GREY_100),
+            bgcolor= ft.colors.with_opacity(0.6,ft.colors.GREY_100),
             content=ft.Column(
                 controls=[
                     dialog_text,
@@ -268,9 +277,88 @@ class Principal(ft.SafeArea):
                                     },
                                     shape=ft.RoundedRectangleBorder(radius=5)
                                 ),
-                                on_click=close_dlg,
+                                on_click=cancel_dlg,
                             ),
                             create_button,
+                        ],
+                        alignment="spaceBetween",
+                    ),
+                ],
+                tight=True,
+            )
+        )
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+        dialog_text.focus()
+
+    def open_edit_dialog(self, tarefa: Tarefa) -> None:
+        def close_dlg(e):
+            tarefa.update_text(dialog_text.value)
+            dialog.open = False
+            self.page.update()
+            self.area_tarefas.content.update()
+
+        def cancel_dlg(e):
+            dialog.open = False
+            self.page.update()
+
+        def textfield_change(e):
+            if dialog_text.value == "":
+                update_button.disabled = True
+            else:
+                update_button.disabled = False
+            self.page.update()
+
+        dialog_text = TextField(
+            label="Editar nome da tarefa",
+            value=tarefa.description,
+            border_color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+            label_style=ft.TextStyle(
+                color=ft.colors.BLACK54 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+                weight=ft.FontWeight.BOLD,
+                font_family='Arial Rounded MT Bold',
+                size=14
+            ),
+            cursor_height=15,
+            cursor_width=1,
+            cursor_color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+            color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
+            border_width=2,
+            on_submit=close_dlg,
+            on_change=textfield_change
+        )
+
+        update_button = ft.ElevatedButton(
+            text="Atualizar",
+            style=ft.ButtonStyle(
+                color={ft.MaterialState.DEFAULT: ft.colors.BLACK87, ft.MaterialState.HOVERED: ft.colors.WHITE},
+                bgcolor={ft.MaterialState.DEFAULT: ft.colors.WHITE, ft.MaterialState.HOVERED: ft.colors.BLACK87,
+                        ft.MaterialState.DISABLED: ft.colors.GREY},
+                shape=ft.RoundedRectangleBorder(radius=5)
+            ),
+            on_click=close_dlg,
+            disabled=True
+        )
+
+        dialog = AlertDialog(
+            title=ft.Text("Editar tarefa"),
+            bgcolor=ft.colors.with_opacity(0.7, ft.colors.GREY_100),
+            content=ft.Column(
+                controls=[
+                    dialog_text,
+                    ft.Row(
+                        controls=[
+                            ft.ElevatedButton(
+                                text="Cancelar",
+                                style=ft.ButtonStyle(
+                                    color={ft.MaterialState.DEFAULT: ft.colors.WHITE, ft.MaterialState.HOVERED: ft.colors.BLACK87},
+                                    bgcolor={ft.MaterialState.DEFAULT: ft.colors.BLACK87, ft.MaterialState.HOVERED: ft.colors.WHITE},
+                                    shape=ft.RoundedRectangleBorder(radius=5)
+                                ),
+                                on_click=cancel_dlg,
+                            ),
+                            update_button,
                         ],
                         alignment="spaceBetween",
                     ),

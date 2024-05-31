@@ -21,6 +21,11 @@ class Tarefa(ft.Draggable):
             icon_color="red700",
             on_click=lambda e: self.delete_text(e),
         )
+        self.edit: ft.IconButton = ft.IconButton(
+            icon=ft.icons.EDIT_ROUNDED,
+            icon_color="blue700",
+            on_click=lambda e: self.edit_text(e),
+        )
 
         self.content: ft.Container = ft.Container(
             content=(
@@ -33,7 +38,12 @@ class Tarefa(ft.Draggable):
                                 self.text
                             ]
                         ),
-                        self.delete,
+                        ft.Row(
+                            controls=[
+                                self.edit,
+                                self.delete,
+                            ]
+                        )
                     ],
                 )
             ),
@@ -52,7 +62,12 @@ class Tarefa(ft.Draggable):
                                 self.text
                             ]
                         ),
-                        self.delete,
+                        ft.Row(
+                            controls=[
+                                self.edit,
+                                self.delete,
+                            ]
+                        )
                     ],
                 )
             ),
@@ -60,7 +75,6 @@ class Tarefa(ft.Draggable):
             bgcolor=ft.colors.with_opacity(0.5,"white")
         )
         self.on_drag_complete = self.drag_complete
-        
 
     def strike(self, e) -> None:
         if e.control.value == True:
@@ -90,7 +104,15 @@ class Tarefa(ft.Draggable):
         else:
             self.tela_tarefa.area_concluida.content.controls.remove(self)
             self.tela_tarefa.area_concluida.update()
+    
+    def edit_text(self, e) -> None:
+        self.tela_tarefa.open_edit_dialog(self)
         
+    def update_text(self, new_description: str) -> None:
+        self.description = new_description
+        self.text.spans[0].text = new_description
+        self.text.update()
+
     def drag_complete(self, e):
         if e.control.content.content.controls[0].controls[0].value == False:
             self.text.spans[0].style = ft.TextStyle(
