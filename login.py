@@ -1,31 +1,23 @@
 import flet as ft
 from styles import alerta
+from banco_de_dados import BancoDeDados
 
 class Login():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
         self.usuario = ''
         self.senha = ''
+        self.bd, self.c = BancoDeDados.conectarAoBanco()
 
     def verificaUsuario(self) -> bool:
-        usuarioExiste = False
-        senhaExiste = False
-        with open('arquivo.txt', 'r') as arquivo:
-            for linha in arquivo:
-                usuarioSalvo, senhaSalva = linha.strip().split(', ')
-                if usuarioSalvo == self.usuario:
-                    usuarioExiste = True
-                    if senhaSalva == self.senha:
-                        senhaExiste = True
-                    break
-        return(usuarioExiste, senhaExiste)
+        return BancoDeDados.verificarCredenciais(self.bd, self.usuario, self.senha)
     
     def entrar(self, login: ft.Container) -> None:
         self.usuario = login.content.controls[0].content.controls[2].content.value
         self.senha = login.content.controls[0].content.controls[3].content.value
         login.content.controls[0].content.controls[2].content.value = f''
         login.content.controls[0].content.controls[3].content.value = f''
-        usuarioExiste, senhaExiste = self.verificaUsuario()
+
         if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
             if len(login.content.controls[0].content.controls) < 7:
                 login.content.controls[0].content.controls.append(alerta['preenchimento'])
@@ -33,7 +25,8 @@ class Login():
                 login.content.controls[0].content.controls.pop()
                 login.content.controls[0].content.controls.append(alerta['preenchimento'])
         else:
-            if usuarioExiste and senhaExiste:
+            usuarioExiste = self.verificaUsuario()
+            if usuarioExiste:
                 self.page.go('/')
             else:
                 if len(login.content.controls[0].content.controls) < 7:
