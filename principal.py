@@ -137,9 +137,9 @@ class Principal(ft.SafeArea):
     def add_item(self, dialog_text: str) -> None:
         if dialog_text != "":
             if self.page.theme_mode == ft.ThemeMode.DARK:
-                self.area_tarefas.content.controls.append(Tarefa(self, dialog_text, "dark"))
+                self.area_tarefas.content.controls.append(Tarefa(self, dialog_text, "dark", self.usuario_logado))
             else:
-                self.area_tarefas.content.controls.append(Tarefa(self, dialog_text, "light"))
+                self.area_tarefas.content.controls.append(Tarefa(self, dialog_text, "light", self.usuario_logado))
 
             self.area_tarefas.update()
             self.item_size()

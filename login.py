@@ -2,7 +2,7 @@ import flet as ft
 from styles import alerta
 from banco_de_dados import BancoDeDados
 
-class Login():
+class Login:
     def __init__(self, page: ft.Page) -> None:
         self.page = page
         self.usuario = ''
@@ -11,12 +11,12 @@ class Login():
 
     def verificaUsuario(self) -> bool:
         return BancoDeDados.verificarCredenciais(self.bd, self.usuario, self.senha)
-    
-    def entrar(self, login: ft.Container) -> None:
+
+    def entrar(self, login: ft.Container, principal: object) -> None:
         self.usuario = login.content.controls[0].content.controls[2].content.value
         self.senha = login.content.controls[0].content.controls[3].content.value
-        login.content.controls[0].content.controls[2].content.value = f''
-        login.content.controls[0].content.controls[3].content.value = f''
+        login.content.controls[0].content.controls[2].content.value = ''
+        login.content.controls[0].content.controls[3].content.value = ''
 
         if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
             if len(login.content.controls[0].content.controls) < 7:
@@ -27,6 +27,7 @@ class Login():
         else:
             usuarioExiste = self.verificaUsuario()
             if usuarioExiste:
+                principal.usuario_logado = self.usuario
                 self.page.go('/')
             else:
                 if len(login.content.controls[0].content.controls) < 7:
@@ -39,7 +40,7 @@ class Login():
     def get_usuario(self) -> str:
         return self.usuario
 
-    def tela_login(self) -> ft.Container:
+    def tela_login(self, principal: object) -> ft.Container:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         login = ft.Container(
             content=(
@@ -125,7 +126,7 @@ class Login():
                                             ),
                                             icon=ft.icons.LOGIN,
                                             width=200,
-                                            on_click=lambda _: self.entrar(login)
+                                            on_click=lambda _: self.entrar(login, principal)
                                         ),
                                         ft.Row(
                                             controls=[
@@ -181,4 +182,4 @@ class Login():
                 ]
             )
         )
-        return(login)
+        return login
