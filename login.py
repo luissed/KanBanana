@@ -2,7 +2,7 @@ import flet as ft
 from styles import alerta
 from banco_de_dados import BancoDeDados
 
-class Login:
+class Login():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
         self.usuario = ''
@@ -10,13 +10,20 @@ class Login:
         self.bd, self.c = BancoDeDados.conectarAoBanco()
 
     def verificaUsuario(self) -> bool:
-        return BancoDeDados.verificarCredenciais(self.bd, self.usuario, self.senha)
+        # Verifica se as credenciais do usuário são válidas.
+        # Retorna o ID do usuário se as credenciais forem válidas.
 
-    def entrar(self, login: ft.Container, principal: object) -> None:
+        usuario_encontrado = BancoDeDados.verificarCredenciais(self.bd, self.usuario, self.senha)
+        if usuario_encontrado:
+            return usuario_encontrado[0]
+        else:
+            return None
+    
+    def entrar(self, login: ft.Container, principal:object) -> None:
         self.usuario = login.content.controls[0].content.controls[2].content.value
         self.senha = login.content.controls[0].content.controls[3].content.value
-        login.content.controls[0].content.controls[2].content.value = ''
-        login.content.controls[0].content.controls[3].content.value = ''
+        login.content.controls[0].content.controls[2].content.value = f''
+        login.content.controls[0].content.controls[3].content.value = f''
 
         if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
             if len(login.content.controls[0].content.controls) < 7:
@@ -25,10 +32,11 @@ class Login:
                 login.content.controls[0].content.controls.pop()
                 login.content.controls[0].content.controls.append(alerta['preenchimento'])
         else:
-            usuarioExiste = self.verificaUsuario()
-            if usuarioExiste:
-                principal.usuario_logado = self.usuario
+            usuario_id = self.verificaUsuario()
+            if usuario_id:
+                principal.usuario_logado = usuario_id
                 self.page.go('/')
+                principal.carregar_tarefas()
             else:
                 if len(login.content.controls[0].content.controls) < 7:
                     login.content.controls[0].content.controls.append(alerta['login'])
@@ -40,7 +48,7 @@ class Login:
     def get_usuario(self) -> str:
         return self.usuario
 
-    def tela_login(self, principal: object) -> ft.Container:
+    def tela_login(self, principal:object) -> ft.Container:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         login = ft.Container(
             content=(
@@ -106,6 +114,7 @@ class Login:
                                                     cursor_color=ft.colors.BLACK87,
                                                     color=ft.colors.BLACK87,
                                                     password=True,
+                                                    can_reveal_password=True,
                                                     border_width=2,
                                                     prefix_icon=ft.icons.LOCK,
                                                 )
@@ -182,4 +191,4 @@ class Login:
                 ]
             )
         )
-        return login
+        return(login)

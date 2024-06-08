@@ -1,7 +1,7 @@
 from flet import *
 import flet as ft
 
-_dark: str = ft.colors.with_opacity(0.5, "white")
+_dark: str = ft.colors.with_opacity(1, "black")
 _light: str = ft.colors.with_opacity(1, "black")
 
 alerta: dict = {

@@ -13,7 +13,7 @@ def main(page: ft.Page):
     principal = Principal(page)
     login = Login(page)
     registro = Registrar(page)
-
+    
     def route_change(route) -> None:
         page.views.clear()
         page.views.append(

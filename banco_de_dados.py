@@ -6,7 +6,6 @@ class BancoDeDados:
         try:
             bd = sqlite3.connect('kanbanana.db', check_same_thread=False)
             c = bd.cursor()
-            # Tabela de Usuários
             c.execute('''
                 CREATE TABLE IF NOT EXISTS usuarios (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,14 +13,14 @@ class BancoDeDados:
                     senha VARCHAR(255) NOT NULL
                 )
             ''')
-            # Tabela de Tarefas
+
             c.execute('''
                 CREATE TABLE IF NOT EXISTS tarefas (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    usuario VARCHAR(255) NOT NULL,
+                    usuario_id INTEGER NOT NULL,
                     descricao VARCHAR(255) NOT NULL,
                     concluida BOOLEAN NOT NULL DEFAULT 0,
-                    FOREIGN KEY(usuario) REFERENCES usuarios(usuario)
+                    FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
                 )
             ''')
             return bd, c
@@ -29,18 +28,21 @@ class BancoDeDados:
             print(e)
 
     @staticmethod
-    def obterTarefas(bd, usuario):
-        query = "SELECT id, descricao, concluida FROM tarefas WHERE usuario = ?"
+    def obterTarefas(bd, usuario_id):
+        query = "SELECT id, descricao, concluida FROM tarefas WHERE usuario_id = ?"
         c = bd.cursor()
-        c.execute(query, (usuario,))
-        return c.fetchall()
+        c.execute(query, (usuario_id,))
+        tarefas = c.fetchall()
+        c.close()  
+        return tarefas
 
     @staticmethod
-    def adicionarTarefa(bd, usuario, descricao):
-        query = "INSERT INTO tarefas (usuario, descricao, concluida) VALUES (?, ?, ?)"
+    def adicionarTarefa(bd, usuario_id, descricao):
+        query = "INSERT INTO tarefas (usuario_id, descricao, concluida) VALUES (?, ?, ?)"
         c = bd.cursor()
-        c.execute(query, (usuario, descricao, False))
+        c.execute(query, (usuario_id, descricao, False))
         bd.commit()
+        c.close()  
 
     @staticmethod
     def atualizarTarefa(bd, tarefa_id, descricao, concluida):
@@ -48,6 +50,7 @@ class BancoDeDados:
         c = bd.cursor()
         c.execute(query, (descricao, concluida, tarefa_id))
         bd.commit()
+        c.close() 
 
     @staticmethod
     def removerTarefa(bd, tarefa_id):
@@ -55,6 +58,7 @@ class BancoDeDados:
         c = bd.cursor()
         c.execute(query, (tarefa_id,))
         bd.commit()
+        c.close()  
 
     @staticmethod
     def inserirUsuario(bd, usuario, senha):
@@ -62,6 +66,7 @@ class BancoDeDados:
         c = bd.cursor()
         c.execute(query, (usuario, senha))
         bd.commit()
+        c.close()  
 
     @staticmethod
     def verificarUsuario(bd, usuario):
@@ -69,12 +74,14 @@ class BancoDeDados:
         c = bd.cursor()
         c.execute(query, (usuario,))
         usuario_encontrado = c.fetchone()
+        c.close() 
         return usuario_encontrado is not None
 
     @staticmethod
     def verificarCredenciais(bd, usuario, senha):
-        query = "SELECT * FROM usuarios WHERE usuario = ? AND senha = ?"
+        query = "SELECT id FROM usuarios WHERE usuario = ? AND senha = ?"
         c = bd.cursor()
         c.execute(query, (usuario, senha))
         usuario_encontrado = c.fetchone()
-        return usuario_encontrado is not None
+        c.close()  
+        return usuario_encontrado
