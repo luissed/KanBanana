@@ -4,7 +4,7 @@ from styles import _dark, _light, tarefa_style_sheet
 from banco_de_dados import BancoDeDados
 
 class Tarefa(ft.Draggable):
-    def __init__(self, tela_tarefa: object, descricao_tarefa: str, theme: str, usuario_id:int, tarefa_id:int = None) -> None:
+    def __init__(self, tela_tarefa: object, descricao: str, theme: str, usuario_id:int, tarefa_id:int = None) -> None:
         
         if theme == "dark":
             tarefa_style_sheet["border"] = ft.border.all(1, _dark)
@@ -13,12 +13,12 @@ class Tarefa(ft.Draggable):
         
         super().__init__(group="tarefa")
         self.tela_tarefa: object = tela_tarefa
-        self.descricao_tarefa = descricao_tarefa
+        self.descricao = descricao
         self.usuario_id = usuario_id
         self.tarefa_id = tarefa_id
 
         self.tick = ft.Checkbox(on_change=lambda e: self.strike(e))
-        self.text: ft.Text = ft.Text(spans=[ft.TextSpan(text=self.descricao_tarefa)], size=14)
+        self.text: ft.Text = ft.Text(spans=[ft.TextSpan(text=self.descricao)], size=14)
         self.delete: ft.IconButton = ft.IconButton(
             icon=ft.icons.DELETE_ROUNDED,
             icon_color="red700",
@@ -83,7 +83,7 @@ class Tarefa(ft.Draggable):
             self.tela_tarefa.area_concluida.update()
             self.tela_tarefa.area_tarefas.update()
             self.tela_tarefa.item_size()
-        BancoDeDados.atualizarTarefa(self.tela_tarefa.bd,self.tarefa_id,self.descricao_tarefa, concluida)
+        BancoDeDados.atualizarTarefa(self.tela_tarefa.bd,self.tarefa_id,self.descricao, concluida)
         self.text.update()
 
     def delete_text(self, e) -> None:
@@ -115,5 +115,5 @@ class Tarefa(ft.Draggable):
             self.tela_tarefa.area_concluida.update()
             self.tela_tarefa.area_tarefas.update()
             self.tela_tarefa.item_size()
-        BancoDeDados.atualizarTarefa(self.tela_tarefa.bd, self.tarefa_id, self.descricao_tarefa,e.control.content.content.controls[0].controls[0].value)
+        BancoDeDados.atualizarTarefa(self.tela_tarefa.bd, self.tarefa_id, self.descricao,e.control.content.content.controls[0].controls[0].value)
         self.text.update()

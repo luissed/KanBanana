@@ -7,7 +7,7 @@ from banco_de_dados import BancoDeDados
 class Principal(ft.SafeArea):
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self.title: ft.Text = ft.Text("MINHAS DE TAREFAS", size=20, weight="w800")
+        self.title: ft.Text = ft.Text("MINHAS TAREFAS", size=20, weight="w800")
         self.toggle: ft.IconButton = ft.IconButton(**toggle_style_sheet, on_click=lambda e: self.switch(e))
 
         self.item: ft.TextField = ft.TextField(**item_style_sheet)
@@ -171,7 +171,6 @@ class Principal(ft.SafeArea):
             self.area_tarefas.update()
             self.area_concluida.update()
             self.item_size()
-
 
 
     def item_size(self) -> None:

@@ -8,7 +8,7 @@ alerta: dict = {
     'login': ft.Container(
         content=(
             ft.Text(
-                value='Usuário e senha incorretos',
+                value='Usuário ou senha incorretos',
                 color=ft.colors.RED
             )
         )

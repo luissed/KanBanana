@@ -44,7 +44,7 @@ def criar_appbar(login: Type[Login], page: ft.Page) -> ft.AppBar:
         ]
     )
 
-def views_handler(page: ft.Page, login: Type[Login], registro: Type[Registrar], principal: Type[Principal]) -> dict:
+def views_handler(page: ft.Page, login: Type[Login], registro: Type[Registrar], principal: Type[Principal]) -> ft.View:
     return {
         '/': ft.View(
             route='/',
