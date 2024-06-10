@@ -102,6 +102,7 @@ class Registrar():
                                                     cursor_color=ft.colors.BLACK87,
                                                     color=ft.colors.BLACK87,
                                                     password=True,
+                                                    can_reveal_password=True,
                                                     border_width=2,
                                                     prefix_icon=ft.icons.LOCK,
                                                 )

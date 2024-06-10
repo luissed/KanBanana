@@ -54,7 +54,7 @@ def views_handler(page: ft.Page, login: Type[Login], registro: Type[Registrar], 
         ),
         '/login': ft.View(
             route='/login',
-            controls=[login.tela_login()],
+            controls=[login.tela_login(principal)],
             padding=0
         ),
         '/registro': ft.View(
