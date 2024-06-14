@@ -5,10 +5,10 @@ from banco_de_dados import BancoDeDados
 class Registrar():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self.bd, self.c = BancoDeDados.conectarAoBanco() 
+        self.bd, self.c = BancoDeDados._conectar_ao_banco() 
 
     def verificaUsuario(self) -> bool:
-        return BancoDeDados.verificarUsuario(self.bd, self.usuario)
+        return BancoDeDados.verificar_usuario(self.bd, self.usuario)
     
     def registrar(self, registro):
         self.usuario = registro.content.controls[0].content.controls[2].content.value
@@ -33,7 +33,7 @@ class Registrar():
                     registro.content.controls[0].content.controls.append(alerta['registro'])
                 self.page.update()
             else:
-                BancoDeDados.inserirUsuario(self.bd, self.usuario, self.senha)
+                BancoDeDados.inserir_usuario(self.bd, self.usuario, self.senha)
                 self.page.go('/login')
     
     def tela_registro(self):

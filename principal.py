@@ -7,27 +7,27 @@ from banco_de_dados import BancoDeDados
 class Principal(ft.SafeArea):
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self.title: ft.Text = ft.Text("MINHAS TAREFAS", size=20, weight="w800")
-        self.toggle: ft.IconButton = ft.IconButton(**toggle_style_sheet, on_click=lambda e: self.switch(e))
+        self.title = ft.Text("MINHAS TAREFAS", size=20, weight="w800")
+        self.toggle = ft.IconButton(**toggle_style_sheet, on_click=lambda e: self.switch(e))
 
-        self.item: ft.TextField = ft.TextField(**item_style_sheet)
-        self.add: ft.IconButton = ft.IconButton(**add_style_sheet, on_click=self.add_board)
+        self.item = ft.TextField(**item_style_sheet)
+        self.add = ft.IconButton(**add_style_sheet, on_click=self.add_board)
 
-        self.bd, self.cursor = BancoDeDados.conectarAoBanco()
+        self.bd, self.cursor = BancoDeDados._conectar_ao_banco()
         self.usuario_logado = None
 
-        self.area_tarefas: ft.DragTarget = ft.DragTarget(
+        self.area_tarefas = ft.DragTarget(
             content=ft.Column(spacing=18, height=680, scroll="Auto", controls=[ft.Container()]),
             group="tarefa"
         )
-        self.counter: ft.Text = ft.Text("0 itens", italic=True)
-        self.area_concluida: ft.DragTarget = ft.DragTarget(
+        self.counter = ft.Text("0 itens", italic=True)
+        self.area_concluida = ft.DragTarget(
             content=ft.Column(spacing=18, height=680, scroll="Auto", controls=[ft.Container()]),
             group="tarefa"
         )
 
     def tela_tarefa(self):
-        self.main: ft.Container = ft.Container(
+        self.main = ft.Container(
             content=ft.Column(
                 controls=[
                     ft.Row(
@@ -47,9 +47,7 @@ class Principal(ft.SafeArea):
                         columns=100,
                         controls=[
                             ft.Column(
-                                col={
-                                    "xs": 51
-                                },
+                                col={"xs": 51},
                                 controls=[
                                     ft.Container(
                                         content=ft.Column(
@@ -74,9 +72,7 @@ class Principal(ft.SafeArea):
                                 ],
                             ),
                             ft.Column(
-                                col={
-                                    "xs": 49
-                                },
+                                col={"xs": 49},
                                 controls=[
                                     ft.Container(
                                         content=ft.Column(
@@ -117,18 +113,18 @@ class Principal(ft.SafeArea):
         )
 
         self.page.theme = ft.Theme(
-                appbar_theme=ft.AppBarTheme(
-                    bgcolor=ft.colors.YELLOW,
-                    color=ft.colors.BLACK87,
-                )
+            appbar_theme=ft.AppBarTheme(
+                bgcolor=ft.colors.YELLOW,
+                color=ft.colors.BLACK87,
             )
+        )
 
         return self.main
     
     def carregar_tarefas(self) -> None:
         if self.usuario_logado is not None:
             print(f"ID do usuario logado: {self.usuario_logado}")
-            tarefas = BancoDeDados.obterTarefas(self.bd, self.usuario_logado)
+            tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
 
             # Cria um dicionário para rastrear as tarefas atuais
             tarefas_atuais = {tarefa.tarefa_id: tarefa for tarefa in self.area_tarefas.content.controls[1:] + self.area_concluida.content.controls[1:]}
@@ -183,8 +179,8 @@ class Principal(ft.SafeArea):
 
     def add_item(self, dialog_text: str) -> None:
         if dialog_text != "":
-            BancoDeDados.adicionarTarefa(self.bd,self.usuario_logado, dialog_text)
-            tarefas = BancoDeDados.obterTarefas(self.bd, self.usuario_logado)
+            BancoDeDados.adicionar_tarefa(self.bd,self.usuario_logado, dialog_text)
+            tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
             if tarefas:
                 tarefa_id = tarefas[-1][0] 
             else: None
@@ -351,3 +347,6 @@ class Principal(ft.SafeArea):
         dialog.open = True
         self.page.update()
         dialog_text.focus()
+    
+    def get_bd(self):
+        return self.bd

@@ -83,11 +83,11 @@ class Tarefa(ft.Draggable):
             self.tela_tarefa.area_concluida.update()
             self.tela_tarefa.area_tarefas.update()
             self.tela_tarefa.item_size()
-        BancoDeDados.atualizarTarefa(self.tela_tarefa.bd,self.tarefa_id,self.descricao, concluida)
+        BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd,self.tarefa_id,self.descricao, concluida)
         self.text.update()
 
     def delete_text(self, e) -> None:
-        BancoDeDados.removerTarefa(self.tela_tarefa.bd, self.tarefa_id)
+        BancoDeDados.remover_tarefa(self.tela_tarefa.bd, self.tarefa_id)
         if self in self.tela_tarefa.area_tarefas.content.controls:
             self.tela_tarefa.area_tarefas.content.controls.remove(self)
             self.tela_tarefa.area_tarefas.update()
@@ -115,5 +115,6 @@ class Tarefa(ft.Draggable):
             self.tela_tarefa.area_concluida.update()
             self.tela_tarefa.area_tarefas.update()
             self.tela_tarefa.item_size()
-        BancoDeDados.atualizarTarefa(self.tela_tarefa.bd, self.tarefa_id, self.descricao,e.control.content.content.controls[0].controls[0].value)
+        BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.tarefa_id, self.descricao,e.control.content.content.controls[0].controls[0].value)
         self.text.update()
+        
