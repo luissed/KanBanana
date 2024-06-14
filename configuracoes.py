@@ -62,7 +62,7 @@ class Configuracoes:
                     alignment=ft.MainAxisAlignment.CENTER,
                 ),
                 width=300,
-                height=400,
+                height=200,
                 padding=20,
             ),
         )
