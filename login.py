@@ -1,25 +1,25 @@
 import flet as ft
+from typing import Type
 from styles import alerta
 from banco_de_dados import BancoDeDados
+from principal import Principal
+from configuracoes import Configuracoes
 
 class Login():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
         self.usuario = ''
         self.senha = ''
-        self.bd, self.c = BancoDeDados.conectarAoBanco()
+        self.bd, self.c = BancoDeDados._conectar_ao_banco()
 
     def verificaUsuario(self) -> bool:
-        # Verifica se as credenciais do usuário são válidas.
-        # Retorna o ID do usuário se as credenciais forem válidas.
-
-        usuario_encontrado = BancoDeDados.verificarCredenciais(self.bd, self.usuario, self.senha)
+        usuario_encontrado = BancoDeDados.verificar_credenciais(self.bd, self.usuario, self.senha)
         if usuario_encontrado:
             return usuario_encontrado[0]
         else:
             return None
-    
-    def entrar(self, login: ft.Container, principal:object) -> None:
+
+    def entrar(self, login: ft.Container, principal: Type[Principal], configuracoes: Type[Configuracoes]) -> None:
         self.usuario = login.content.controls[0].content.controls[2].content.value
         self.senha = login.content.controls[0].content.controls[3].content.value
         login.content.controls[0].content.controls[2].content.value = f''
@@ -35,6 +35,7 @@ class Login():
             usuario_id = self.verificaUsuario()
             if usuario_id:
                 principal.usuario_logado = usuario_id
+                configuracoes.atualizar_usuario_id(usuario_id)
                 self.page.go('/')
                 principal.carregar_tarefas()
             else:
@@ -48,7 +49,7 @@ class Login():
     def get_usuario(self) -> str:
         return self.usuario
 
-    def tela_login(self, principal:object) -> ft.Container:
+    def tela_login(self, principal: Type[Principal], configuracoes: Type[Configuracoes]) -> ft.Container:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         login = ft.Container(
             content=(
@@ -135,7 +136,7 @@ class Login():
                                             ),
                                             icon=ft.icons.LOGIN,
                                             width=200,
-                                            on_click=lambda _: self.entrar(login, principal)
+                                            on_click=lambda _: self.entrar(login, principal, configuracoes)
                                         ),
                                         ft.Row(
                                             controls=[

@@ -53,3 +53,16 @@ tarefa_style_sheet: dict = {
     "height": 50,
     "border_radius": 4
 }
+
+button_style: ft.ButtonStyle = ft.ButtonStyle(
+    color={
+        ft.MaterialState.DEFAULT: ft.colors.BLACK87,
+        ft.MaterialState.HOVERED: ft.colors.WHITE
+    },
+    bgcolor={
+        ft.MaterialState.DEFAULT: ft.colors.WHITE,
+        ft.MaterialState.HOVERED: ft.colors.BLACK87,
+        ft.MaterialState.DISABLED: ft.colors.GREY
+    },
+    shape=ft.RoundedRectangleBorder(radius=5)
+)

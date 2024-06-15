@@ -1,8 +1,8 @@
 import sqlite3
 
-class BancoDeDados:
+class BancoDeDados():
     @staticmethod
-    def conectarAoBanco():
+    def _conectar_ao_banco():
         try:
             bd = sqlite3.connect('kanbanana.db', check_same_thread=False)
             c = bd.cursor()
@@ -28,7 +28,7 @@ class BancoDeDados:
             print(e)
 
     @staticmethod
-    def obterTarefas(bd, usuario_id):
+    def obter_tarefas(bd, usuario_id):
         query = "SELECT id, descricao, concluida FROM tarefas WHERE usuario_id = ?"
         c = bd.cursor()
         c.execute(query, (usuario_id,))
@@ -37,7 +37,7 @@ class BancoDeDados:
         return tarefas
 
     @staticmethod
-    def adicionarTarefa(bd, usuario_id, descricao):
+    def adicionar_tarefa(bd, usuario_id, descricao):
         query = "INSERT INTO tarefas (usuario_id, descricao, concluida) VALUES (?, ?, ?)"
         c = bd.cursor()
         c.execute(query, (usuario_id, descricao, False))
@@ -45,7 +45,7 @@ class BancoDeDados:
         c.close()  
 
     @staticmethod
-    def atualizarTarefa(bd, tarefa_id, descricao, concluida):
+    def atualizar_tarefa(bd, tarefa_id, descricao, concluida):
         query = "UPDATE tarefas SET descricao = ?, concluida = ? WHERE id = ?"
         c = bd.cursor()
         c.execute(query, (descricao, concluida, tarefa_id))
@@ -53,7 +53,7 @@ class BancoDeDados:
         c.close() 
 
     @staticmethod
-    def removerTarefa(bd, tarefa_id):
+    def remover_tarefa(bd, tarefa_id):
         query = "DELETE FROM tarefas WHERE id = ?"
         c = bd.cursor()
         c.execute(query, (tarefa_id,))
@@ -61,7 +61,7 @@ class BancoDeDados:
         c.close()  
 
     @staticmethod
-    def inserirUsuario(bd, usuario, senha):
+    def inserir_usuario(bd, usuario, senha):
         query = "INSERT INTO usuarios (usuario, senha) VALUES (?, ?)"
         c = bd.cursor()
         c.execute(query, (usuario, senha))
@@ -69,7 +69,7 @@ class BancoDeDados:
         c.close()  
 
     @staticmethod
-    def verificarUsuario(bd, usuario):
+    def verificar_usuario(bd, usuario):
         query = "SELECT * FROM usuarios WHERE usuario = ?"
         c = bd.cursor()
         c.execute(query, (usuario,))
@@ -78,10 +78,39 @@ class BancoDeDados:
         return usuario_encontrado is not None
 
     @staticmethod
-    def verificarCredenciais(bd, usuario, senha):
+    def verificar_credenciais(bd, usuario, senha):
         query = "SELECT id FROM usuarios WHERE usuario = ? AND senha = ?"
         c = bd.cursor()
         c.execute(query, (usuario, senha))
         usuario_encontrado = c.fetchone()
         c.close()  
         return usuario_encontrado
+
+    @staticmethod
+    def trocar_senha(bd, usuario_id, nova_senha):
+        try:
+            query = "UPDATE usuarios SET senha = ? WHERE id = ?"
+            c = bd.cursor()
+            c.execute(query, (nova_senha, usuario_id))
+            bd.commit()
+            c.close()
+            print(f"Senha do usuário {usuario_id} alterada com sucesso.")
+        except Exception as e:
+            print(f"Erro ao alterar a senha: {e}")
+
+    @staticmethod
+    def apagar_conta(bd, usuario_id):
+        try:
+            query = "DELETE FROM usuarios WHERE id = ?"
+            c = bd.cursor()
+            c.execute(query, (usuario_id,))
+            bd.commit()
+            c.close()
+            query = "DELETE FROM tarefas WHERE usuario_id = ?"
+            c = bd.cursor()
+            c.execute(query, (usuario_id,))
+            bd.commit()
+            c.close()
+        except Exception as e:
+            print(f"Erro ao apagar a conta: {e}")
+
