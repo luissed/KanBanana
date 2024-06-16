@@ -147,49 +147,47 @@ class Principal(ft.SafeArea):
         return self.main
     
     def carregar_tarefas(self) -> None:
+        """
+        Se o usuário estiver logado, esta função obtém todas as tarefas daquele usuário no banco
+        de dados, limpa as áreas de tarefas na interface e adiciona as tarefas nas áreas 
+        correspondentes (concluída, em andamento, atrasada, e pendente).
+
+        """
         if self.usuario_logado is not None:
             print(f"ID do usuario logado: {self.usuario_logado}")
+            # Obtem do banco de dados todas as tarefas do usuário logado
             tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
 
-            # Cria um dicionário para rastrear as tarefas atuais
-            tarefas_atuais = {tarefa.tarefa_id: tarefa for tarefa in self.area_tarefas.controls[1:] + self.area_concluida.controls[1:]}
+            # Limpa todas as áreas da tela principal
+            self.area_tarefas.controls.clear()
+            self.area_concluida.controls.clear()
+            self.area_andamento.controls.clear()
+            self.area_atrasada.controls.clear()
 
-            # Dicionário para verificar quais tarefas são novas
-            novas_tarefas = {tarefa[0]: tarefa for tarefa in tarefas}
-
-            # Remove tarefas que não estão mais no banco de dados
-            for tarefa_id, tarefa in list(tarefas_atuais.items()):
-                if tarefa_id not in novas_tarefas:
-                    if tarefa in self.area_tarefas.controls:
-                        self.area_tarefas.content.controls.remove(tarefa)
-                    elif tarefa in self.area_concluida.controls:
-                        self.area_concluida.controls.remove(tarefa)
-            
-            # Atualiza ou adiciona novas tarefas
+            # Adiciona as tarefas recuperadas do banco de dados nas áreas correspondentes
             for tarefa in tarefas:
-                tarefa_id, descricao, concluida = tarefa
+                tarefa_id, descricao, concluida, em_andamento, atrasada = tarefa
+                theme = "dark" if self.page.theme_mode == ft.ThemeMode.DARK else "light"
+                obj_tarefa = Tarefa(self, descricao, theme, self.usuario_logado, tarefa_id)
 
-                if tarefa_id in tarefas_atuais:
-                    # Atualiza tarefa existente
-                    obj_tarefa = tarefas_atuais[tarefa_id]
-                    obj_tarefa.text.spans[0].text = descricao
-                    
+                if concluida:
+                    obj_tarefa.tick.value = True
+                    obj_tarefa.text.spans[0].style = ft.TextStyle(
+                        decoration=ft.TextDecoration.LINE_THROUGH,
+                        decoration_thickness=2
+                    )
+                    self.area_concluida.controls.append(obj_tarefa)
+                elif em_andamento:
+                    self.area_andamento.controls.append(obj_tarefa)
+                elif atrasada:
+                    self.area_atrasada.controls.append(obj_tarefa)
                 else:
-                    # Cria uma nova tarefa
-                    theme = "dark" if self.page.theme_mode == ft.ThemeMode.DARK else "light"
-                    obj_tarefa = Tarefa(self, descricao, theme, self.usuario_logado, tarefa_id)
+                    self.area_tarefas.controls.append(obj_tarefa)
 
-                    if concluida:
-                        obj_tarefa.tick.value = True
-                        obj_tarefa.text.spans[0].style = ft.TextStyle(
-                            decoration=ft.TextDecoration.LINE_THROUGH if concluida else None,
-                            decoration_thickness=2 if concluida else None
-                        )
-                        self.area_concluida.controls.append(obj_tarefa)
-                    else:
-                        self.area_tarefas.controls.append(obj_tarefa)
-
+            # Atualiza todas as áreas de tarefas
             self.area_tarefas.update()
+            self.area_atrasada.update()
+            self.area_andamento.update()
             self.area_concluida.update()
             self.item_size()
 
@@ -421,5 +419,6 @@ class Principal(ft.SafeArea):
         self.page.update()
         dialog_text.focus()
     
+    # Retorna o banco de dados 
     def get_bd(self):
         return self.bd

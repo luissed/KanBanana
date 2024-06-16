@@ -7,7 +7,7 @@ class Registrar():
         self.page = page
         self.bd, self.c = BancoDeDados._conectar_ao_banco() 
 
-    def verificaUsuario(self) -> bool:
+    def verifica_usuario(self) -> bool:
         return BancoDeDados.verificar_usuario(self.bd, self.usuario)
     
     def registrar(self, registro):
@@ -24,7 +24,7 @@ class Registrar():
                 registro.content.controls[0].content.controls.append(alerta['preenchimento'])
             self.page.update()
         else:
-            usuarioExiste = self.verificaUsuario()
+            usuarioExiste = self.verifica_usuario()
             if usuarioExiste:
                 if len(registro.content.controls[0].content.controls) < 7:
                     registro.content.controls[0].content.controls.append(alerta['registro'])
