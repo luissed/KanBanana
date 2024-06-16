@@ -6,13 +6,21 @@ class Configuracoes:
     def __init__(self, page: ft.Page, principal: object) -> None:
         self.page = page
         self.principal = principal
+        
         self.bd = self.principal.get_bd()
         self.usuario_id = None
         self.dialog = None
-        self.seta_voltar = ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=lambda _: self.abrir_configuracoes(), icon_color=ft.colors.GREY_700)
-        self.fechar = ft.IconButton(icon=ft.icons.CLOSE, on_click=lambda _: self.fechar_dialog(), icon_color=ft.colors.GREY_700)
+        self.seta_voltar = ft.IconButton(
+            icon=ft.icons.ARROW_BACK,
+            icon_color=ft.colors.GREY_700,
+            on_click=lambda _: self.abrir_configuracoes()
+        )
+        self.fechar = ft.IconButton(
+            icon=ft.icons.CLOSE,
+            icon_color=ft.colors.GREY_700,
+            on_click=lambda _: self.fechar_dialog()
+        )
         
-
     def atualizar_usuario_id(self, usuario_id):
         self.usuario_id = usuario_id
 
