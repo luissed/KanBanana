@@ -1,7 +1,7 @@
 from flet import *
 import flet as ft
 
-_dark: str = ft.colors.with_opacity(1, "black")
+_dark: str = ft.colors.with_opacity(1, "white")
 _light: str = ft.colors.with_opacity(1, "black")
 
 alerta: dict = {
@@ -50,7 +50,6 @@ item_style_sheet: dict = {
     "content_padding": 15
 }
 tarefa_style_sheet: dict = {
-    "height": 50,
     "border_radius": 4
 }
 

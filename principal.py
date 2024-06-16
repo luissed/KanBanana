@@ -16,15 +16,16 @@ class Principal(ft.SafeArea):
         self.bd, self.cursor = BancoDeDados._conectar_ao_banco()
         self.usuario_logado = None
 
-        self.area_tarefas = ft.DragTarget(
-            content=ft.Column(spacing=18, height=680, scroll="Auto", controls=[ft.Container()]),
-            group="tarefa"
-        )
+        self.area_tarefas = ft.Column(spacing=18, expand=True, scroll="Auto")
         self.counter = ft.Text("0 itens", italic=True)
-        self.area_concluida = ft.DragTarget(
-            content=ft.Column(spacing=18, height=680, scroll="Auto", controls=[ft.Container()]),
-            group="tarefa"
-        )
+
+        self.area_atrasada = ft.Column(spacing=18, expand=True, scroll="Auto")
+        self.counter_atrasada = ft.Text("0 itens", italic=True)
+
+        self.area_andamento = ft.Column(spacing=18, expand=True, scroll="Auto")
+        self.counter_andamento = ft.Text("0 itens", italic=True)
+
+        self.area_concluida = ft.Column(spacing=18, expand=True, scroll="Auto")
 
     def tela_tarefa(self):
         self.main = ft.Container(
@@ -44,59 +45,83 @@ class Principal(ft.SafeArea):
                     ft.Divider(height=20),
                     ft.ResponsiveRow(
                         alignment="spaceBetween",
-                        columns=100,
+                        columns=80,
                         controls=[
-                            ft.Column(
-                                col={"xs": 51},
-                                controls=[
-                                    ft.Container(
-                                        content=ft.Column(
-                                            scroll=ft.ScrollMode.AUTO,
+                            ft.Container(
+                                col={"xs": 20},
+                                content=ft.Column(
+                                    controls=[
+                                        ft.Row(
+                                            alignment="spaceBetween",
+                                            col=2,
                                             controls=[
-                                                ft.Row(
-                                                    alignment="spaceBetween",
-                                                    col=2,
-                                                    controls=[
-                                                        ft.Text('Lista de Tarefas'),
-                                                        self.counter
-                                                    ]
-                                                ),
-                                                self.area_tarefas
-                                            ],
+                                                ft.Text('A fazer'),
+                                                self.counter
+                                            ]
                                         ),
-                                        bgcolor=ft.colors.with_opacity(0.5,"grey50"),
-                                        border_radius=5,
-                                        border=ft.border.all(1,"grey50"),
-                                        padding=10,
-                                    )
-                                ],
+                                        self.area_tarefas
+                                    ],
+                                ),
+                                bgcolor=ft.colors.with_opacity(0.5,"grey50"),
+                                border_radius=5,
+                                border=ft.border.all(1,"grey50"),
+                                padding=10,
                             ),
-                            ft.Column(
-                                col={"xs": 49},
-                                controls=[
-                                    ft.Container(
-                                        content=ft.Column(
+                            ft.Container(
+                                col={"xs": 20},
+                                content=ft.Column(
+                                    controls=[
+                                        ft.Row(
+                                            alignment="spaceBetween",
+                                            col=2,
                                             controls=[
-                                                ft.Row(
-                                                    controls=[
-                                                        ft.Text("Tarefas Concluídas"),
-                                                        ft.Container(
-                                                            expand=True
-                                                        )
-                                                    ]
-                                                ),
-                                                self.area_concluida
-                                            ],
+                                                ft.Text('Atrasada'),
+                                                self.counter_atrasada
+                                            ]
                                         ),
-                                        bgcolor=ft.colors.with_opacity(0.5,"grey50"),
-                                        border_radius=5,
-                                        border=ft.border.all(1,"grey50"),
-                                        padding=10,
-                                    )
-                                ],
+                                        self.area_atrasada
+                                    ],
+                                ),
+                                bgcolor=ft.colors.with_opacity(0.5,"grey50"),
+                                border_radius=5,
+                                border=ft.border.all(1,"grey50"),
+                                padding=10,
+                            ),
+                            ft.Container(
+                                col={"xs": 20},
+                                content=ft.Column(
+                                    controls=[
+                                        ft.Row(
+                                            alignment="spaceBetween",
+                                            col=2,
+                                            controls=[
+                                                ft.Text('Em andamento'),
+                                                self.counter_andamento
+                                            ]
+                                        ),
+                                        self.area_andamento
+                                    ],
+                                ),
+                                bgcolor=ft.colors.with_opacity(0.5,"grey50"),
+                                border_radius=5,
+                                border=ft.border.all(1,"grey50"),
+                                padding=10,
+                            ),
+                            ft.Container(
+                                col={"xs": 20},
+                                content=ft.Column(
+                                    controls=[
+                                        ft.Text("Tarefas Concluídas"),
+                                        self.area_concluida
+                                    ],
+                                ),
+                                bgcolor=ft.colors.with_opacity(0.5,"grey50"),
+                                border_radius=5,
+                                border=ft.border.all(1,"grey50"),
+                                padding=10,
                             ),
                         ],
-                        height=500
+                        expand=True
                     )
                 ],
             ),
@@ -127,7 +152,7 @@ class Principal(ft.SafeArea):
             tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
 
             # Cria um dicionário para rastrear as tarefas atuais
-            tarefas_atuais = {tarefa.tarefa_id: tarefa for tarefa in self.area_tarefas.content.controls[1:] + self.area_concluida.content.controls[1:]}
+            tarefas_atuais = {tarefa.tarefa_id: tarefa for tarefa in self.area_tarefas.controls[1:] + self.area_concluida.controls[1:]}
 
             # Dicionário para verificar quais tarefas são novas
             novas_tarefas = {tarefa[0]: tarefa for tarefa in tarefas}
@@ -135,10 +160,10 @@ class Principal(ft.SafeArea):
             # Remove tarefas que não estão mais no banco de dados
             for tarefa_id, tarefa in list(tarefas_atuais.items()):
                 if tarefa_id not in novas_tarefas:
-                    if tarefa in self.area_tarefas.content.controls:
+                    if tarefa in self.area_tarefas.controls:
                         self.area_tarefas.content.controls.remove(tarefa)
-                    elif tarefa in self.area_concluida.content.controls:
-                        self.area_concluida.content.controls.remove(tarefa)
+                    elif tarefa in self.area_concluida.controls:
+                        self.area_concluida.controls.remove(tarefa)
             
             # Atualiza ou adiciona novas tarefas
             for tarefa in tarefas:
@@ -160,9 +185,9 @@ class Principal(ft.SafeArea):
                             decoration=ft.TextDecoration.LINE_THROUGH if concluida else None,
                             decoration_thickness=2 if concluida else None
                         )
-                        self.area_concluida.content.controls.append(obj_tarefa)
+                        self.area_concluida.controls.append(obj_tarefa)
                     else:
-                        self.area_tarefas.content.controls.append(obj_tarefa)
+                        self.area_tarefas.controls.append(obj_tarefa)
 
             self.area_tarefas.update()
             self.area_concluida.update()
@@ -170,12 +195,26 @@ class Principal(ft.SafeArea):
 
 
     def item_size(self) -> None:
-        if len(self.area_tarefas.content.controls[:]) == 2:
-            self.counter.value = f"{len(self.area_tarefas.content.controls[:]) - 1} item"
+        if len(self.area_tarefas.controls[:]) == 1:
+            self.counter.value = f"{len(self.area_tarefas.controls[:])} item"
         else:
-            self.counter.value = f"{len(self.area_tarefas.content.controls[:]) - 1} itens"
+            self.counter.value = f"{len(self.area_tarefas.controls[:])} itens"
 
         self.counter.update()
+
+        if len(self.area_atrasada.controls[:]) == 1:
+            self.counter_atrasada.value = f"{len(self.area_atrasada.controls[:])} item"
+        else:
+            self.counter_atrasada.value = f"{len(self.area_atrasada.controls[:])} itens"
+
+        self.counter_atrasada.update()
+
+        if len(self.area_andamento.controls[:]) == 1:
+            self.counter_andamento.value = f"{len(self.area_andamento.controls[:])} item"
+        else:
+            self.counter_andamento.value = f"{len(self.area_andamento.controls[:])} itens"
+
+        self.counter_andamento.update()
 
     def add_item(self, dialog_text: str) -> None:
         if dialog_text != "":
@@ -186,9 +225,9 @@ class Principal(ft.SafeArea):
             else: None
 
             if self.page.theme_mode == ft.ThemeMode.DARK:
-                self.area_tarefas.content.controls.append(Tarefa(self, dialog_text, "dark", self.usuario_logado, tarefa_id))
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "dark", self.usuario_logado, tarefa_id))
             else:
-                self.area_tarefas.content.controls.append(Tarefa(self, dialog_text, "light", self.usuario_logado, tarefa_id))
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "light", self.usuario_logado, tarefa_id))
 
             self.area_tarefas.update()
             self.item_size()
@@ -223,8 +262,25 @@ class Principal(ft.SafeArea):
                 ]
             )
 
-            for item in self.area_tarefas.content.controls[:]:
+            for item in self.area_tarefas.controls[:]:
                 item.border = ft.border.all(1, _light)
+                item.content.controls[2].icon_color = "black"
+                item.content.controls[3].icon_color = "black"
+            
+            for item in self.area_atrasada.controls[:]:
+                item.border = ft.border.all(1, _light)
+                item.content.controls[2].icon_color = "black"
+                item.content.controls[3].icon_color = "black"
+            
+            for item in self.area_andamento.controls[:]:
+                item.border = ft.border.all(1, _light)
+                item.content.controls[2].icon_color = "black"
+                item.content.controls[3].icon_color = "black"
+            
+            for item in self.area_concluida.controls[:]:
+                item.border = ft.border.all(1, _light)
+                item.content.controls[2].icon_color = "black"
+                item.content.controls[3].icon_color = "black"
 
         else:
             self.page.theme_mode = ft.ThemeMode.DARK
@@ -249,8 +305,25 @@ class Principal(ft.SafeArea):
                 ]
             )
 
-            for item in self.area_tarefas.content.controls[:]:
+            for item in self.area_tarefas.controls[:]:
                 item.border = ft.border.all(1, _dark)
+                item.content.controls[2].icon_color = "white"
+                item.content.controls[3].icon_color = "white"
+            
+            for item in self.area_atrasada.controls[:]:
+                item.border = ft.border.all(1, _dark)
+                item.content.controls[2].icon_color = "white"
+                item.content.controls[3].icon_color = "white"
+            
+            for item in self.area_andamento.controls[:]:
+                item.border = ft.border.all(1, _dark)
+                item.content.controls[2].icon_color = "white"
+                item.content.controls[3].icon_color = "white"
+            
+            for item in self.area_concluida.controls[:]:
+                item.border = ft.border.all(1, _dark)
+                item.content.controls[2].icon_color = "white"
+                item.content.controls[3].icon_color = "white"
 
         self.page.update()
 
