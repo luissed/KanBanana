@@ -19,9 +19,13 @@ Descrição: Configura a tela do aplicativo para o login, com os seguintes eleme
 class Login():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self.usuario = ''
-        self.senha = ''
-        self.bd, self.c = BancoDeDados._conectar_ao_banco()
+        self._usuario = ""
+        self._senha = ""
+        self._bd, self._c = BancoDeDados._conectar_ao_banco()
+
+    @property
+    def usuario(self) -> str:
+        return self._usuario
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -32,7 +36,7 @@ class Login():
     --------------------------------------------------------------------------------------------------------------------
     """
     def verifica_usuario(self) -> bool:
-        usuario_encontrado = BancoDeDados.verificar_credenciais(self.bd, self.usuario, self.senha)
+        usuario_encontrado = BancoDeDados.verificar_credenciais(self._bd, self._usuario, self._senha)
         if usuario_encontrado:
             return usuario_encontrado[0]
         else:
@@ -49,12 +53,12 @@ class Login():
     --------------------------------------------------------------------------------------------------------------------
     """
     def entrar(self, login: ft.Container, principal: Type[Principal], configuracoes: Type[Configuracoes]) -> None:
-        self.usuario = login.content.controls[0].content.controls[2].content.value
-        self.senha = login.content.controls[0].content.controls[3].content.value
+        self._usuario = login.content.controls[0].content.controls[2].content.value
+        self._senha = login.content.controls[0].content.controls[3].content.value
         login.content.controls[0].content.controls[2].content.value = f''
         login.content.controls[0].content.controls[3].content.value = f''
 
-        if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
+        if len(self._usuario.strip()) == 0 or len(self._senha.strip()) == 0:
             if len(login.content.controls[0].content.controls) < 7:
                 login.content.controls[0].content.controls.append(alerta['preenchimento'])
             elif len(login.content.controls[0].content.controls) == 7:
@@ -64,7 +68,7 @@ class Login():
             usuario_id = self.verifica_usuario()
             if usuario_id:
                 principal.usuario_logado = usuario_id 
-                configuracoes.atualizar_usuario_id(usuario_id) 
+                configuracoes.usuario_id = usuario_id 
                 self.page.go("/")
                 principal.carregar_tarefas() 
             else:
@@ -74,9 +78,6 @@ class Login():
                     login.content.controls[0].content.controls.pop()
                     login.content.controls[0].content.controls.append(alerta['login'])
         self.page.update()
-
-    def get_usuario(self) -> str:
-        return self.usuario
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -161,6 +162,7 @@ class Login():
                                                     can_reveal_password = True,
                                                     border_width = 2,
                                                     prefix_icon = ft.icons.LOCK,
+                                                    on_submit = lambda _: self.entrar(login, principal, configuracoes)
                                                 )
                                             )
                                         ),

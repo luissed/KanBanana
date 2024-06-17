@@ -16,8 +16,8 @@ class Configuracoes:
         self.page = page
         self.principal = principal
         
-        self.bd = self.principal.get_bd()                               #Obtém a conexão com o banco de dados inicializado na classe Principal
-        self.usuario_id = None
+        self._bd = self.principal.bd                               #Obtém a conexão com o banco de dados inicializado na classe Principal
+        self._usuario_id = None
 
         #Atributos Flet
         self.seta_voltar = ft.IconButton(
@@ -32,25 +32,30 @@ class Configuracoes:
             on_click = lambda _: self.fechar_dialog()
         )
 
-    def atualizar_usuario_id(self, usuario_id: int) -> None:
-        self.usuario_id = usuario_id                                    #Atualiza o ID do usuário.
+    @property
+    def usuario_id(self) -> int:
+        return self._usuario_id                                           #Obtem o ID do usuário
+    
+    @usuario_id.setter
+    def usuario_id(self, usuario_id: int) -> None:
+        self._usuario_id = usuario_id                                     #Atualiza o ID do usuário.
 
     def trocar_senha(self, nova_senha: str) -> None:
-        BancoDeDados.trocar_senha(self.bd, self.usuario_id, nova_senha) #Altera a senha do usuário no Banco de Dados.
+        BancoDeDados.trocar_senha(self._bd, self._usuario_id, nova_senha) #Altera a senha do usuário no Banco de Dados.
         self.fechar_dialog()
         self.page.go("/login")
 
     def apagar_conta(self) -> None:
-        BancoDeDados.apagar_conta(self.bd, self.usuario_id)             #Apaga a conta do usuário no Banco de Dados.
+        BancoDeDados.apagar_conta(self._bd, self._usuario_id)             #Apaga a conta do usuário no Banco de Dados.
         self.fechar_dialog()
         self.page.go("/login")
     
     def fechar_dialog(self) -> None:
-        self.dialog.open = False                                        #Fecha o diálogo de configuração.
+        self.dialog.open = False                                          #Fecha o diálogo de configuração.
         self.page.update()
 
     def voltar(self) -> None:
-        self.abrir_configuracoes()                                      #Volta para o menu de configurações.
+        self.abrir_configuracoes()                                        #Volta para o menu de configurações.
     
     """
     ----------------------------------------------------------------------------------------------------------------------

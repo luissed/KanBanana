@@ -26,8 +26,8 @@ Descrição: Configura a tela principal do aplicativo, com os seguintes elemento
 class Principal(ft.SafeArea):
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self.bd, self.cursor = BancoDeDados._conectar_ao_banco()
-        self.usuario_logado = None
+        self._bd, self._cursor = BancoDeDados._conectar_ao_banco()
+        self._usuario_logado = None
 
         #Atributos Flet
         self.title = ft.Text(
@@ -85,9 +85,18 @@ class Principal(ft.SafeArea):
             scroll = "Auto"
         )
 
-    def get_bd(self):
-        return self.bd
+    @property
+    def bd(self):
+        return self._bd
     
+    @property
+    def usuario_logado(self) -> int:
+        return self._usuario_logado
+    
+    @usuario_logado.setter
+    def usuario_logado(self, usuario_logado: int) -> None:
+        self._usuario_logado = usuario_logado
+        
     """
     --------------------------------------------------------------------------------------------------------------------
                                                 Método item_size
@@ -129,9 +138,9 @@ class Principal(ft.SafeArea):
     --------------------------------------------------------------------------------------------------------------------
     """
     def carregar_tarefas(self) -> None:
-        if self.usuario_logado is not None:
+        if self._usuario_logado is not None:
             # Obtem do banco de dados todas as tarefas do usuário logado
-            tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
+            tarefas = BancoDeDados.obter_tarefas(self._bd, self._usuario_logado)
 
             self.area_tarefas.controls.clear()
             self.area_concluida.controls.clear()
@@ -142,10 +151,12 @@ class Principal(ft.SafeArea):
                 tarefa_id, descricao, data_str, concluida, em_andamento, atrasada = tarefa
                 data = datetime.strptime(data_str, '%Y-%m-%d').date()
                 theme = "dark" if self.page.theme_mode == ft.ThemeMode.DARK else "light"
-                obj_tarefa = Tarefa(self, descricao, theme, self.usuario_logado, data, tarefa_id)
+                obj_tarefa = Tarefa(self, descricao, theme, self._usuario_logado, data, tarefa_id)
 
                 if data == date.today():
                     obj_tarefa.data_text.spans[0].style = ft.TextStyle(color = "amber")
+                elif data < date.today():
+                    obj_tarefa.data_text.spans[0].style = ft.TextStyle(color = "red")
 
                 if concluida:
                     obj_tarefa.tick.value = True
@@ -155,10 +166,9 @@ class Principal(ft.SafeArea):
                     )
                     self.area_concluida.controls.append(obj_tarefa)
                 elif data < date.today():
-                    obj_tarefa.data_text.spans[0].style = ft.TextStyle(color="red")
                     self.area_atrasada.controls.append(obj_tarefa)
                     if not atrasada:
-                        BancoDeDados.atualizar_tarefa(self.bd, tarefa_id, descricao, data, False, False, True)
+                        BancoDeDados.atualizar_tarefa(self._bd, tarefa_id, descricao, data, False, False, True)
                 elif em_andamento:
                     self.area_andamento.controls.append(obj_tarefa)
                 else:
@@ -213,16 +223,16 @@ class Principal(ft.SafeArea):
     """
     def add_item(self, dialog_text: str, date_picker: date) -> None:
         if dialog_text != "":
-            BancoDeDados.adicionar_tarefa(self.bd,self.usuario_logado, dialog_text, date_picker)
-            tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
+            BancoDeDados.adicionar_tarefa(self._bd, self._usuario_logado, dialog_text, date_picker)
+            tarefas = BancoDeDados.obter_tarefas(self._bd, self._usuario_logado)
             if tarefas:
                 tarefa_id = tarefas[-1][0] 
             else: None
 
             if self.page.theme_mode == ft.ThemeMode.DARK:
-                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "dark", self.usuario_logado, date_picker, tarefa_id))
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "dark", self._usuario_logado, date_picker, tarefa_id))
             else:
-                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "light", self.usuario_logado, date_picker, tarefa_id))
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "light", self._usuario_logado, date_picker, tarefa_id))
             self.verifica_atrasada()
 
         else:

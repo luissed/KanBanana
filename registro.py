@@ -16,7 +16,9 @@ Descrição: Configura a tela do aplicativo para o registro, incluindo:
 class Registrar():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self.bd, self.c = BancoDeDados._conectar_ao_banco() 
+        self._usuario = ""
+        self._senha = ""
+        self._bd, self._c = BancoDeDados._conectar_ao_banco() 
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -27,7 +29,7 @@ class Registrar():
     --------------------------------------------------------------------------------------------------------------------
     """
     def verifica_usuario(self) -> bool:
-        return BancoDeDados.verificar_usuario(self.bd, self.usuario)
+        return BancoDeDados.verificar_usuario(self._bd, self._usuario)
     
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -39,12 +41,12 @@ class Registrar():
     --------------------------------------------------------------------------------------------------------------------
     """
     def registrar(self, registro: ft.Container) -> None:
-        self.usuario = registro.content.controls[0].content.controls[2].content.value
-        self.senha = registro.content.controls[0].content.controls[3].content.value
+        self._usuario = registro.content.controls[0].content.controls[2].content.value
+        self._senha = registro.content.controls[0].content.controls[3].content.value
         registro.content.controls[0].content.controls[2].content.value = f""
         registro.content.controls[0].content.controls[3].content.value = f""
         
-        if len(self.usuario.strip()) == 0 or len(self.senha.strip()) == 0:
+        if len(self._usuario.strip()) == 0 or len(self._senha.strip()) == 0:
             if len(registro.content.controls[0].content.controls) < 7:
                 registro.content.controls[0].content.controls.append(alerta["preenchimento"])
             elif len(registro.content.controls[0].content.controls) == 7:
@@ -61,7 +63,7 @@ class Registrar():
                     registro.content.controls[0].content.controls.append(alerta["registro"])
                 self.page.update()
             else:
-                BancoDeDados.inserir_usuario(self.bd, self.usuario, self.senha)
+                BancoDeDados.inserir_usuario(self._bd, self._usuario, self._senha)
                 self.page.go('/login')
     
     """

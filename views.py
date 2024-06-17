@@ -44,7 +44,7 @@ def criar_appbar(login: Type[Login], page: ft.Page, configuracoes: Type[Configur
                 controls = [
                     ft.Container(
                         content = ft.Text(
-                            value = login.get_usuario()
+                            value = login.usuario
                         ),
                     ),
                     ft.Container(
