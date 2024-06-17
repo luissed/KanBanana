@@ -3,7 +3,7 @@ import flet as ft
 from styles import _dark, _light, toggle_style_sheet, add_style_sheet, item_style_sheet
 from tarefa import Tarefa
 from banco_de_dados import BancoDeDados
-from datetime import date
+from datetime import date, datetime
 
 class Principal(ft.SafeArea):
     def __init__(self, page: ft.Page) -> None:
@@ -155,6 +155,7 @@ class Principal(ft.SafeArea):
                 tarefa.data_text.spans[0].style = ft.TextStyle(color="red")
                 self.area_tarefas.controls.remove(tarefa)
                 self.area_atrasada.controls.append(tarefa)
+                BancoDeDados.atualizar_tarefa(self.bd, tarefa.tarefa_id, tarefa.descricao, tarefa.data, False, False, True)
         for tarefa in self.area_andamento.controls[:]:
             if tarefa.data == date.today():
                 tarefa.data_text.spans[0].style = ft.TextStyle(color="amber")
@@ -162,56 +163,59 @@ class Principal(ft.SafeArea):
                 tarefa.data_text.spans[0].style = ft.TextStyle(color="red")
                 self.area_andamento.controls.remove(tarefa)
                 self.area_atrasada.controls.append(tarefa)
+                BancoDeDados.atualizar_tarefa(self.bd, tarefa.tarefa_id, tarefa.descricao, tarefa.data, False, False, True)
         self.area_tarefas.update()
         self.area_andamento.update()
         self.area_atrasada.update()
         self.item_size()
     
     def carregar_tarefas(self) -> None:
+        """
+        Se o usuário estiver logado, esta função obtém todas as tarefas daquele usuário no banco
+        de dados, limpa as áreas de tarefas na interface e adiciona as tarefas nas áreas 
+        correspondentes (concluída, em andamento, atrasada, e pendente).
+
+        """
         if self.usuario_logado is not None:
             print(f"ID do usuario logado: {self.usuario_logado}")
             tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
 
-            # Cria um dicionário para rastrear as tarefas atuais
-            tarefas_atuais = {tarefa.tarefa_id: tarefa for tarefa in self.area_tarefas.controls[:] + self.area_concluida.controls[:]}
+            self.area_tarefas.controls.clear()
+            self.area_concluida.controls.clear()
+            self.area_andamento.controls.clear()
+            self.area_atrasada.controls.clear()
 
-            # Dicionário para verificar quais tarefas são novas
-            novas_tarefas = {tarefa[0]: tarefa for tarefa in tarefas}
-
-            # Remove tarefas que não estão mais no banco de dados
-            for tarefa_id, tarefa in list(tarefas_atuais.items()):
-                if tarefa_id not in novas_tarefas:
-                    if tarefa in self.area_tarefas.controls:
-                        self.area_tarefas.content.controls.remove(tarefa)
-                    elif tarefa in self.area_concluida.controls:
-                        self.area_concluida.controls.remove(tarefa)
-            
-            # Atualiza ou adiciona novas tarefas
             for tarefa in tarefas:
-                tarefa_id, descricao, concluida = tarefa
+                tarefa_id, descricao, data_str, concluida, em_andamento, atrasada = tarefa
+                data = datetime.strptime(data_str, '%Y-%m-%d').date()
+                theme = "dark" if self.page.theme_mode == ft.ThemeMode.DARK else "light"
+                obj_tarefa = Tarefa(self, descricao, theme, self.usuario_logado, data, tarefa_id)
 
-                if tarefa_id in tarefas_atuais:
-                    # Atualiza tarefa existente
-                    obj_tarefa = tarefas_atuais[tarefa_id]
-                    obj_tarefa.text.spans[0].text = descricao
-                    
+                if data == date.today():
+                    obj_tarefa.data_text.spans[0].style = ft.TextStyle(color="amber")
+
+                if concluida:
+                    obj_tarefa.tick.value = True
+                    obj_tarefa.text.spans[0].style = ft.TextStyle(
+                        decoration=ft.TextDecoration.LINE_THROUGH,
+                        decoration_thickness=2
+                    )
+                    self.area_concluida.controls.append(obj_tarefa)
+                elif data < date.today():
+                    obj_tarefa.data_text.spans[0].style = ft.TextStyle(color="red")
+                    self.area_atrasada.controls.append(obj_tarefa)
+                    if not atrasada:
+                        BancoDeDados.atualizar_tarefa(self.bd, tarefa_id, descricao, data, False, False, True)
+                elif em_andamento:
+                    self.area_andamento.controls.append(obj_tarefa)
                 else:
-                    # Cria uma nova tarefa
-                    theme = "dark" if self.page.theme_mode == ft.ThemeMode.DARK else "light"
-                    obj_tarefa = Tarefa(self, descricao, theme, self.usuario_logado, date(2024,1,1), tarefa_id)
-
-                    if concluida:
-                        obj_tarefa.tick.value = True
-                        obj_tarefa.text.spans[0].style = ft.TextStyle(
-                            decoration=ft.TextDecoration.LINE_THROUGH if concluida else None,
-                            decoration_thickness=2 if concluida else None
-                        )
-                        self.area_concluida.controls.append(obj_tarefa)
-                    else:
-                        self.area_tarefas.controls.append(obj_tarefa)
-
-            self.verifica_atrasada()
+                    self.area_tarefas.controls.append(obj_tarefa)
+                    
+            self.area_tarefas.update()
+            self.area_atrasada.update()
+            self.area_andamento.update()
             self.area_concluida.update()
+            self.item_size()
 
 
     def item_size(self) -> None:
@@ -238,7 +242,7 @@ class Principal(ft.SafeArea):
 
     def add_item(self, dialog_text: str, date_picker: date) -> None:
         if dialog_text != "":
-            BancoDeDados.adicionar_tarefa(self.bd,self.usuario_logado, dialog_text)
+            BancoDeDados.adicionar_tarefa(self.bd,self.usuario_logado, dialog_text, date_picker)
             tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
             if tarefas:
                 tarefa_id = tarefas[-1][0] 
@@ -362,7 +366,7 @@ class Principal(ft.SafeArea):
                 create_button.disabled = False
             self.page.update()
 
-        dialog_text = TextField(
+        dialog_text = ft.TextField(
             label="Nome da nova tarefa",
             border_color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
             label_style=ft.TextStyle(
@@ -379,6 +383,7 @@ class Principal(ft.SafeArea):
             on_submit=close_dlg,
             on_change=textfield_change
         )
+
         create_button = ft.ElevatedButton(
             text="Criar",
             style=ft.ButtonStyle(
@@ -396,10 +401,13 @@ class Principal(ft.SafeArea):
             on_click=close_dlg,
             disabled=True
         )
+
         date_picker = ft.DatePicker(
             value=date.today(),
         )
+
         self.page.overlay.append(date_picker)
+
         date_button = ft.ElevatedButton(
             text="Escolha uma data",
             icon=ft.icons.CALENDAR_MONTH,
@@ -418,8 +426,37 @@ class Principal(ft.SafeArea):
             on_click=lambda _: date_picker.pick_date(),
         )
 
-        dialog = AlertDialog(
-            title=ft.Text("Criar nova tarefa"),
+        dialog_content = ft.Container(
+            content=ft.Column(
+                controls=[
+                    dialog_text,
+                    ft.Row(
+                        controls=[
+                            date_button,
+                            create_button,
+                        ],
+                        alignment="spaceBetween",
+                    ),
+                ],
+                tight=True,
+            ),
+            width=500,  
+            height=140  
+        )
+
+        dialog = ft.AlertDialog(
+            title=ft.Row(
+                controls=[
+                    ft.Text("Criar nova tarefa"),
+                    ft.IconButton(
+                        icon=ft.icons.CLOSE,
+                        on_click=cancel_task,
+                        icon_color=ft.colors.GREY_700
+                    )
+                ],
+                alignment="spaceBetween"
+
+            ),
             title_text_style=ft.TextStyle(
                 color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.BLACK54,
                 weight=ft.FontWeight.BOLD,
@@ -427,39 +464,13 @@ class Principal(ft.SafeArea):
                 size=18,
             ),
             bgcolor= ft.colors.with_opacity(0.8,ft.colors.GREY_100),
-            content=ft.Column(
-                controls=[
-                    dialog_text,
-                    ft.Row(
-                        controls=[
-                            ft.ElevatedButton(
-                                text="Cancelar",
-                                style=ft.ButtonStyle(
-                                    color={
-                                        ft.MaterialState.DEFAULT: ft.colors.WHITE,
-                                        ft.MaterialState.HOVERED: ft.colors.BLACK87
-                                    },
-                                    bgcolor={
-                                        ft.MaterialState.DEFAULT: ft.colors.BLACK87,
-                                        ft.MaterialState.HOVERED: ft.colors.WHITE
-                                    },
-                                    shape=ft.RoundedRectangleBorder(radius=5)
-                                ),
-                                on_click=cancel_task,
-                            ),
-                            create_button,
-                        ],
-                        alignment="spaceBetween",
-                    ),
-                    date_button
-                ],
-                tight=True,
-            )
+            content=dialog_content
         )
+
         self.page.dialog = dialog
         dialog.open = True
         self.page.update()
         dialog_text.focus()
-    
+
     def get_bd(self):
         return self.bd
