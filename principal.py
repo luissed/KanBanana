@@ -3,6 +3,7 @@ import flet as ft
 from styles import _dark, _light, toggle_style_sheet, add_style_sheet, item_style_sheet
 from tarefa import Tarefa
 from banco_de_dados import BancoDeDados
+from datetime import date, datetime
 
 class Principal(ft.SafeArea):
     def __init__(self, page: ft.Page) -> None:
@@ -146,6 +147,28 @@ class Principal(ft.SafeArea):
 
         return self.main
     
+    def verifica_atrasada(self) -> None:
+        for tarefa in self.area_tarefas.controls[:]:
+            if tarefa.data == date.today():
+                tarefa.data_text.spans[0].style = ft.TextStyle(color="amber")
+            elif tarefa.data < date.today():
+                tarefa.data_text.spans[0].style = ft.TextStyle(color="red")
+                self.area_tarefas.controls.remove(tarefa)
+                self.area_atrasada.controls.append(tarefa)
+                BancoDeDados.atualizar_tarefa(self.bd, tarefa.tarefa_id, tarefa.descricao, tarefa.data, False, False, True)
+        for tarefa in self.area_andamento.controls[:]:
+            if tarefa.data == date.today():
+                tarefa.data_text.spans[0].style = ft.TextStyle(color="amber")
+            elif tarefa.data < date.today():
+                tarefa.data_text.spans[0].style = ft.TextStyle(color="red")
+                self.area_andamento.controls.remove(tarefa)
+                self.area_atrasada.controls.append(tarefa)
+                BancoDeDados.atualizar_tarefa(self.bd, tarefa.tarefa_id, tarefa.descricao, tarefa.data, False, False, True)
+        self.area_tarefas.update()
+        self.area_andamento.update()
+        self.area_atrasada.update()
+        self.item_size()
+    
     def carregar_tarefas(self) -> None:
         """
         Se o usuário estiver logado, esta função obtém todas as tarefas daquele usuário no banco
@@ -158,17 +181,19 @@ class Principal(ft.SafeArea):
             # Obtem do banco de dados todas as tarefas do usuário logado
             tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
 
-            # Limpa todas as áreas da tela principal
             self.area_tarefas.controls.clear()
             self.area_concluida.controls.clear()
             self.area_andamento.controls.clear()
             self.area_atrasada.controls.clear()
 
-            # Adiciona as tarefas recuperadas do banco de dados nas áreas correspondentes
             for tarefa in tarefas:
-                tarefa_id, descricao, concluida, em_andamento, atrasada = tarefa
+                tarefa_id, descricao, data_str, concluida, em_andamento, atrasada = tarefa
+                data = datetime.strptime(data_str, '%Y-%m-%d').date()
                 theme = "dark" if self.page.theme_mode == ft.ThemeMode.DARK else "light"
-                obj_tarefa = Tarefa(self, descricao, theme, self.usuario_logado, tarefa_id)
+                obj_tarefa = Tarefa(self, descricao, theme, self.usuario_logado, data, tarefa_id)
+
+                if data == date.today():
+                    obj_tarefa.data_text.spans[0].style = ft.TextStyle(color="amber")
 
                 if concluida:
                     obj_tarefa.tick.value = True
@@ -177,14 +202,16 @@ class Principal(ft.SafeArea):
                         decoration_thickness=2
                     )
                     self.area_concluida.controls.append(obj_tarefa)
+                elif data < date.today():
+                    obj_tarefa.data_text.spans[0].style = ft.TextStyle(color="red")
+                    self.area_atrasada.controls.append(obj_tarefa)
+                    if not atrasada:
+                        BancoDeDados.atualizar_tarefa(self.bd, tarefa_id, descricao, data, False, False, True)
                 elif em_andamento:
                     self.area_andamento.controls.append(obj_tarefa)
-                elif atrasada:
-                    self.area_atrasada.controls.append(obj_tarefa)
                 else:
                     self.area_tarefas.controls.append(obj_tarefa)
-
-            # Atualiza todas as áreas de tarefas
+                    
             self.area_tarefas.update()
             self.area_atrasada.update()
             self.area_andamento.update()
@@ -214,21 +241,19 @@ class Principal(ft.SafeArea):
 
         self.counter_andamento.update()
 
-    def add_item(self, dialog_text: str) -> None:
+    def add_item(self, dialog_text: str, date_picker: date) -> None:
         if dialog_text != "":
-            BancoDeDados.adicionar_tarefa(self.bd,self.usuario_logado, dialog_text)
+            BancoDeDados.adicionar_tarefa(self.bd,self.usuario_logado, dialog_text, date_picker)
             tarefas = BancoDeDados.obter_tarefas(self.bd, self.usuario_logado)
             if tarefas:
                 tarefa_id = tarefas[-1][0] 
             else: None
 
             if self.page.theme_mode == ft.ThemeMode.DARK:
-                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "dark", self.usuario_logado, tarefa_id))
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "dark", self.usuario_logado, date_picker, tarefa_id))
             else:
-                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "light", self.usuario_logado, tarefa_id))
-
-            self.area_tarefas.update()
-            self.item_size()
+                self.area_tarefas.controls.append(Tarefa(self, dialog_text, "light", self.usuario_logado, date_picker, tarefa_id))
+            self.verifica_atrasada()
 
         else:
             pass
@@ -262,23 +287,23 @@ class Principal(ft.SafeArea):
 
             for item in self.area_tarefas.controls[:]:
                 item.border = ft.border.all(1, _light)
-                item.content.controls[2].icon_color = "black"
-                item.content.controls[3].icon_color = "black"
+                item.content.controls[0].controls[2].icon_color = "black"
+                item.content.controls[0].controls[3].icon_color = "black"
             
             for item in self.area_atrasada.controls[:]:
                 item.border = ft.border.all(1, _light)
-                item.content.controls[2].icon_color = "black"
-                item.content.controls[3].icon_color = "black"
+                item.content.controls[0].controls[2].icon_color = "black"
+                item.content.controls[0].controls[3].icon_color = "black"
             
             for item in self.area_andamento.controls[:]:
                 item.border = ft.border.all(1, _light)
-                item.content.controls[2].icon_color = "black"
-                item.content.controls[3].icon_color = "black"
+                item.content.controls[0].controls[2].icon_color = "black"
+                item.content.controls[0].controls[3].icon_color = "black"
             
             for item in self.area_concluida.controls[:]:
                 item.border = ft.border.all(1, _light)
-                item.content.controls[2].icon_color = "black"
-                item.content.controls[3].icon_color = "black"
+                item.content.controls[0].controls[2].icon_color = "black"
+                item.content.controls[0].controls[3].icon_color = "black"
 
         else:
             self.page.theme_mode = ft.ThemeMode.DARK
@@ -305,29 +330,29 @@ class Principal(ft.SafeArea):
 
             for item in self.area_tarefas.controls[:]:
                 item.border = ft.border.all(1, _dark)
-                item.content.controls[2].icon_color = "white"
-                item.content.controls[3].icon_color = "white"
+                item.content.controls[0].controls[2].icon_color = "white"
+                item.content.controls[0].controls[3].icon_color = "white"
             
             for item in self.area_atrasada.controls[:]:
                 item.border = ft.border.all(1, _dark)
-                item.content.controls[2].icon_color = "white"
-                item.content.controls[3].icon_color = "white"
+                item.content.controls[0].controls[2].icon_color = "white"
+                item.content.controls[0].controls[3].icon_color = "white"
             
             for item in self.area_andamento.controls[:]:
                 item.border = ft.border.all(1, _dark)
-                item.content.controls[2].icon_color = "white"
-                item.content.controls[3].icon_color = "white"
+                item.content.controls[0].controls[2].icon_color = "white"
+                item.content.controls[0].controls[3].icon_color = "white"
             
             for item in self.area_concluida.controls[:]:
                 item.border = ft.border.all(1, _dark)
-                item.content.controls[2].icon_color = "white"
-                item.content.controls[3].icon_color = "white"
+                item.content.controls[0].controls[2].icon_color = "white"
+                item.content.controls[0].controls[3].icon_color = "white"
 
         self.page.update()
 
     def add_board(self, e) -> None:
         def close_dlg(e):
-            self.add_item(dialog_text.value)
+            self.add_item(dialog_text.value, date_picker.value.date())
             dialog.open = False
             self.page.update()
         
@@ -342,7 +367,7 @@ class Principal(ft.SafeArea):
                 create_button.disabled = False
             self.page.update()
 
-        dialog_text = TextField(
+        dialog_text = ft.TextField(
             label="Nome da nova tarefa",
             border_color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.WHITE,
             label_style=ft.TextStyle(
@@ -359,6 +384,7 @@ class Principal(ft.SafeArea):
             on_submit=close_dlg,
             on_change=textfield_change
         )
+
         create_button = ft.ElevatedButton(
             text="Criar",
             style=ft.ButtonStyle(
@@ -376,49 +402,76 @@ class Principal(ft.SafeArea):
             on_click=close_dlg,
             disabled=True
         )
-        dialog = AlertDialog(
-            title=ft.Text("Criar nova tarefa"),
-            title_text_style=ft.TextStyle(
-                color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.BLACK54,
-                weight=ft.FontWeight.BOLD,
-                font_family='Arial Rounded MT ',
-                size=18,
-            ),
 
-            bgcolor= ft.colors.with_opacity(0.8,ft.colors.GREY_100),
+        date_picker = ft.DatePicker(
+            value=date.today(),
+        )
+
+        self.page.overlay.append(date_picker)
+
+        date_button = ft.ElevatedButton(
+            text="Escolha uma data",
+            icon=ft.icons.CALENDAR_MONTH,
+            style=ft.ButtonStyle(
+                color={
+                    ft.MaterialState.DEFAULT: ft.colors.BLACK87,
+                    ft.MaterialState.HOVERED: ft.colors.WHITE
+                },
+                bgcolor={
+                    ft.MaterialState.DEFAULT: ft.colors.WHITE,
+                    ft.MaterialState.HOVERED: ft.colors.BLACK87,
+                    ft.MaterialState.DISABLED: ft.colors.GREY
+                },
+                shape=ft.RoundedRectangleBorder(radius=5)
+            ),
+            on_click=lambda _: date_picker.pick_date(),
+        )
+
+        dialog_content = ft.Container(
             content=ft.Column(
                 controls=[
                     dialog_text,
                     ft.Row(
                         controls=[
-                            ft.ElevatedButton(
-                                text="Cancelar",
-                                style=ft.ButtonStyle(
-                                    color={
-                                        ft.MaterialState.DEFAULT: ft.colors.WHITE,
-                                        ft.MaterialState.HOVERED: ft.colors.BLACK87
-                                    },
-                                    bgcolor={
-                                        ft.MaterialState.DEFAULT: ft.colors.BLACK87,
-                                        ft.MaterialState.HOVERED: ft.colors.WHITE
-                                    },
-                                    shape=ft.RoundedRectangleBorder(radius=5)
-                                ),
-                                on_click=cancel_task,
-                            ),
+                            date_button,
                             create_button,
                         ],
                         alignment="spaceBetween",
                     ),
                 ],
                 tight=True,
-            )
+            ),
+            width=500,  
+            height=140  
         )
+
+        dialog = ft.AlertDialog(
+            title=ft.Row(
+                controls=[
+                    ft.Text("Criar nova tarefa"),
+                    ft.IconButton(
+                        icon=ft.icons.CLOSE,
+                        on_click=cancel_task,
+                        icon_color=ft.colors.GREY_700
+                    )
+                ],
+                alignment="spaceBetween"
+
+            ),
+            title_text_style=ft.TextStyle(
+                color=ft.colors.BLACK87 if self.page.theme_mode == ft.ThemeMode.LIGHT else ft.colors.BLACK54,
+                weight=ft.FontWeight.BOLD,
+                font_family='Arial Rounded MT ',
+                size=18,
+            ),
+            bgcolor= ft.colors.with_opacity(0.8,ft.colors.GREY_100),
+            content=dialog_content
+        )
+
         self.page.dialog = dialog
         dialog.open = True
         self.page.update()
         dialog_text.focus()
-    
-    # Retorna o banco de dados 
+
     def get_bd(self):
         return self.bd

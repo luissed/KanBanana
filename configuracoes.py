@@ -16,9 +16,23 @@ class Configuracoes:
         """
         self.page = page
         self.principal = principal
+        
+        self.bd = self.principal.get_bd()
         self.bd = self.principal.get_bd()  # Obtém a conexão com o banco de dados inicializado na classe Principal
         self.usuario_id = None
         self.dialog = None
+        self.seta_voltar = ft.IconButton(
+            icon=ft.icons.ARROW_BACK,
+            icon_color=ft.colors.GREY_700,
+            on_click=lambda _: self.abrir_configuracoes()
+        )
+        self.fechar = ft.IconButton(
+            icon=ft.icons.CLOSE,
+            icon_color=ft.colors.GREY_700,
+            on_click=lambda _: self.fechar_dialog()
+        )
+        
+    def atualizar_usuario_id(self, usuario_id):
 
         self.seta_voltar = ft.IconButton(
             icon=ft.icons.ARROW_BACK,

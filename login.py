@@ -19,7 +19,7 @@ class Login():
         """
         usuario_encontrado = BancoDeDados.verificar_credenciais(self.bd, self.usuario, self.senha)
         if usuario_encontrado:
-            return usuario_encontrado[0]  # Primeiro elemento da tupla é o id 
+            return usuario_encontrado[0]
         else:
             return None
 
@@ -36,12 +36,12 @@ class Login():
                 login.content.controls[0].content.controls.pop()
                 login.content.controls[0].content.controls.append(alerta['preenchimento'])
         else:
-            usuario_id = self.verifica_usuario() 
+            usuario_id = self.verifica_usuario()
             if usuario_id:
-                principal.usuario_logado = usuario_id # Define o usuário_logado na página Principal
-                configuracoes.atualizar_usuario_id(usuario_id) # Define o id do usuário para realizar as modificações em Configurações
+                principal.usuario_logado = usuario_id 
+                configuracoes.atualizar_usuario_id(usuario_id) 
                 self.page.go('/')
-                principal.carregar_tarefas() # Chama a função carregar_tarefas, que adiciona na tela todas as tarefas do usuário logado
+                principal.carregar_tarefas() 
             else:
                 if len(login.content.controls[0].content.controls) < 7:
                     login.content.controls[0].content.controls.append(alerta['login'])
