@@ -1,10 +1,21 @@
 import flet as ft
 from typing import Type
-from styles import alerta
+from styles import alerta, button_style_login, button_style_registrar, bg_gradient
 from banco_de_dados import BancoDeDados
 from principal import Principal
 from configuracoes import Configuracoes
 
+"""
+--------------------------------------------------- Classe Login ---------------------------------------------------
+Entradas: Page
+Saídas: -
+Descrição: Configura a tela do aplicativo para o login, com os seguintes elementos:
+            - Dois campos de texto para usuário e senha, respectivamente.
+            - Dois botões: um para login e outro para registrar-se.
+            - Logo e nome do aplicativo.
+          Além disso, nesta classe é feita a verificação do usuário e senha para o login.
+--------------------------------------------------------------------------------------------------------------------
+"""
 class Login():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
@@ -12,17 +23,31 @@ class Login():
         self.senha = ''
         self.bd, self.c = BancoDeDados._conectar_ao_banco()
 
+    """
+    --------------------------------------------------------------------------------------------------------------------
+                                                Método verifica_usuario
+    Entradas: -
+    Saídas: Booleano (True se o usuário existe, None caso contrário)
+    Descrição: Verifica as credenciais do usuário e retorna o ID do usuário se encontrado.
+    --------------------------------------------------------------------------------------------------------------------
+    """
     def verifica_usuario(self) -> bool:
-        """
-        Verifica as credenciais do usuário e retorna o ID do usuário se encontrado.
-
-        """
         usuario_encontrado = BancoDeDados.verificar_credenciais(self.bd, self.usuario, self.senha)
         if usuario_encontrado:
             return usuario_encontrado[0]
         else:
             return None
 
+    """
+    --------------------------------------------------------------------------------------------------------------------
+                                                Método entrar
+    Entradas: login, principal, configuracoes
+    Saídas: -
+    Descrição: Recebe os valores inseridos nos campos de texto e os envia para o método verifica_usuario.
+               Com base nisso, realiza o login ou exibe um alerta na tela, utilizando as variáveis login, principal e 
+               configuracoes para configurar o comportamento da interface.
+    --------------------------------------------------------------------------------------------------------------------
+    """
     def entrar(self, login: ft.Container, principal: Type[Principal], configuracoes: Type[Configuracoes]) -> None:
         self.usuario = login.content.controls[0].content.controls[2].content.value
         self.senha = login.content.controls[0].content.controls[3].content.value
@@ -40,7 +65,7 @@ class Login():
             if usuario_id:
                 principal.usuario_logado = usuario_id 
                 configuracoes.atualizar_usuario_id(usuario_id) 
-                self.page.go('/')
+                self.page.go("/")
                 principal.carregar_tarefas() 
             else:
                 if len(login.content.controls[0].content.controls) < 7:
@@ -53,147 +78,137 @@ class Login():
     def get_usuario(self) -> str:
         return self.usuario
 
+    """
+    --------------------------------------------------------------------------------------------------------------------
+                                                Método tela_login
+    Entradas: principal, configuracoes
+    Saídas: login (Retorna as configurações da interface para serem exibidas na tela.)
+    Descrição: Configura a tela do aplicativo para exibir a interface de login. Esta tela inclui:
+                - Dois campos de texto para inserir usuário e senha.
+                - Logo e nome do aplicativo.
+                - Botões de login e registrar-se.
+               Utiliza as variáveis login, principal e configuracoes para definir a aparência e funcionalidade da tela.
+    --------------------------------------------------------------------------------------------------------------------
+    """
     def tela_login(self, principal: Type[Principal], configuracoes: Type[Configuracoes]) -> ft.Container:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         login = ft.Container(
-            content=(
+            content = (
                 ft.Row(
-                    controls=[
+                    controls = [
                         ft.Container(
-                            content=(
+                            content = (
                                 ft.Column(
-                                    controls=[
+                                    controls = [
                                         ft.Image(
-                                            src='/images/banana.webp',
-                                            height=45
+                                            src = "/images/banana.webp",
+                                            height = 45
                                         ),
                                         ft.Container(
-                                            content=(
-                                                ft.Text('KanBanana',
-                                                        color=ft.colors.BLACK87,
-                                                        size=23,
-                                                        weight=ft.FontWeight.BOLD,
-                                                        font_family='Annai MN'
+                                            content = (
+                                                ft.Text(
+                                                    value = "KanBanana",
+                                                    color = "black87",
+                                                    size = 23,
+                                                    weight = "bold",
+                                                    font_family = "Chalkboard"
                                                     )
                                             ),
                                         ),
                                         ft.Container(
-                                            content=(
+                                            content = (
                                                 ft.TextField(
-                                                    height=45,
-                                                    width=200,
-                                                    label='Usuário',
-                                                    border_color=ft.colors.BLACK87,
-                                                    autofocus=True,
+                                                    height = 45,
+                                                    width = 200,
+                                                    label = "Usuário",
+                                                    border_color = "black87",
+                                                    autofocus = True,
                                                     label_style=ft.TextStyle(
-                                                        color=ft.colors.BLACK54,
-                                                        weight=ft.FontWeight.BOLD, 
-                                                        font_family='Annai MN',
-                                                        size=14
+                                                        color = "black54",
+                                                        weight = "bold", 
+                                                        font_family = "Arial Rounded MT Bold",
+                                                        size = 14
                                                     ),
-                                                    text_style=ft.TextStyle(font_family='Annai MN'),
-                                                    cursor_height=15,
-                                                    cursor_width=1,
-                                                    cursor_color=ft.colors.BLACK87,
-                                                    color=ft.colors.BLACK87,
-                                                    border_width=2,
-                                                    prefix_icon=ft.icons.PERSON,
+                                                    text_style = ft.TextStyle(font_family = "Arial"),
+                                                    cursor_height = 15,
+                                                    cursor_width = 1,
+                                                    cursor_color = "black87",
+                                                    color = "black87",
+                                                    border_width = 2,
+                                                    prefix_icon = ft.icons.PERSON,
                                                 )
                                             )
                                         ),
                                         ft.Container(
-                                            content=(
+                                            content = (
                                                 ft.TextField(
-                                                    height=45,
-                                                    width=200,
-                                                    label='Senha',
-                                                    border_color=ft.colors.BLACK87,
-                                                    label_style=ft.TextStyle(
-                                                        color=ft.colors.BLACK54,
-                                                        weight=ft.FontWeight.BOLD,
-                                                        font_family='Annai MN',
-                                                        size=14
+                                                    height = 45,
+                                                    width = 200,
+                                                    label = "Senha",
+                                                    border_color = "black87",
+                                                    label_style = ft.TextStyle(
+                                                        color = "black54",
+                                                        weight = "bold",
+                                                        font_family = "Arial Rounded MT Bold",
+                                                        size = 14
                                                     ),
-                                                    cursor_height=15,
-                                                    cursor_width=1,
-                                                    cursor_color=ft.colors.BLACK87,
-                                                    color=ft.colors.BLACK87,
-                                                    password=True,
-                                                    can_reveal_password=True,
-                                                    border_width=2,
-                                                    prefix_icon=ft.icons.LOCK,
+                                                    text_style = ft.TextStyle(font_family = "Arial"),
+                                                    cursor_height = 15,
+                                                    cursor_width = 1,
+                                                    cursor_color = "black87",
+                                                    color = "black87",
+                                                    password = True,
+                                                    can_reveal_password = True,
+                                                    border_width = 2,
+                                                    prefix_icon = ft.icons.LOCK,
                                                 )
                                             )
                                         ),
                                         ft.FilledButton(
-                                            text='Login',
-                                            style=ft.ButtonStyle(
-                                                color={
-                                                    ft.MaterialState.DEFAULT: ft.colors.BLACK87,
-                                                    ft.MaterialState.HOVERED: ft.colors.WHITE
-                                                },
-                                                bgcolor={
-                                                    ft.MaterialState.DEFAULT: ft.colors.WHITE,
-                                                    ft.MaterialState.HOVERED: ft.colors.BLACK87
-                                                },
-                                                shape=ft.RoundedRectangleBorder(radius=10)
-                                            ),
-                                            icon=ft.icons.LOGIN,
-                                            width=200,
-                                            on_click=lambda _: self.entrar(login, principal, configuracoes)
+                                            text = "Login",
+                                            style = button_style_login,
+                                            icon = ft.icons.LOGIN,
+                                            width = 200,
+                                            on_click = lambda _: self.entrar(login, principal, configuracoes)
                                         ),
                                         ft.Row(
-                                            controls=[
+                                            controls = [
                                                 ft.Text(
-                                                    value='Não tem uma conta?',
-                                                    style=ft.TextStyle(
-                                                        color=ft.colors.BLACK87
+                                                    value = "Não tem uma conta?",
+                                                    style = ft.TextStyle(
+                                                        color = "black87"
                                                     ),
-                                                    size=14
+                                                    size = 14
                                                 ),
                                                 ft.TextButton(
-                                                    text='Registre-se',
-                                                    style=ft.ButtonStyle(
-                                                        color={
-                                                            ft.MaterialState.DEFAULT: ft.colors.BLACK54,
-                                                            ft.MaterialState.HOVERED: ft.colors.WHITE
-                                                        },
-                                                        bgcolor={
-                                                            ft.MaterialState.DEFAULT: ft.colors.TRANSPARENT,
-                                                            ft.MaterialState.HOVERED: ft.colors.BLACK87
-                                                        }
-                                                    ),
-                                                    on_click=lambda _: self.page.go('/registro')
+                                                    text = "Registre-se",
+                                                    style = button_style_registrar,
+                                                    on_click = lambda _: self.page.go("/registro")
                                                 )
                                             ],
-                                            alignment=ft.MainAxisAlignment.CENTER,
+                                            alignment = "center",
                                         )
                                     ],
-                                    alignment=ft.MainAxisAlignment.CENTER,
-                                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                    expand=True
+                                    alignment = "center",
+                                    horizontal_alignment = "center",
+                                    expand = True
                                 )
                             ),
-                            border=ft.border.all(1,ft.colors.GREY_50),
-                            alignment= ft.alignment.center,
-                            height=500,
-                            width=300,
-                            border_radius=20,
-                            bgcolor=ft.colors.with_opacity(600000,ft.colors.GREY_100),
+                            border = ft.border.all(1,"grey50"),
+                            alignment = ft.alignment.center,
+                            height = 500,
+                            width = 300,
+                            border_radius = 20,
+                            bgcolor = ft.colors.with_opacity(600000,"grey100"),
                         )
                     ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    expand=True
+                    alignment = "center",
+                    vertical_alignment = "center",
+                    expand = True
                 )
             ),
-            expand=True,
-            gradient=ft.LinearGradient(
-                begin=ft.alignment.top_left,
-                end=ft.alignment.bottom_right,
-                colors=[
-                    ft.colors.YELLOW,ft.colors.YELLOW_200
-                ]
-            )
+            expand = True,
+            gradient = bg_gradient
         )
+
         return(login)
