@@ -12,7 +12,11 @@ class Login():
         self.senha = ''
         self.bd, self.c = BancoDeDados._conectar_ao_banco()
 
-    def verificaUsuario(self) -> bool:
+    def verifica_usuario(self) -> bool:
+        """
+        Verifica as credenciais do usuário e retorna o ID do usuário se encontrado.
+
+        """
         usuario_encontrado = BancoDeDados.verificar_credenciais(self.bd, self.usuario, self.senha)
         if usuario_encontrado:
             return usuario_encontrado[0]
@@ -32,12 +36,12 @@ class Login():
                 login.content.controls[0].content.controls.pop()
                 login.content.controls[0].content.controls.append(alerta['preenchimento'])
         else:
-            usuario_id = self.verificaUsuario()
+            usuario_id = self.verifica_usuario()
             if usuario_id:
-                principal.usuario_logado = usuario_id
-                configuracoes.atualizar_usuario_id(usuario_id)
+                principal.usuario_logado = usuario_id 
+                configuracoes.atualizar_usuario_id(usuario_id) 
                 self.page.go('/')
-                principal.carregar_tarefas()
+                principal.carregar_tarefas() 
             else:
                 if len(login.content.controls[0].content.controls) < 7:
                     login.content.controls[0].content.controls.append(alerta['login'])
