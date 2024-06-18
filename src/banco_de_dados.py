@@ -12,7 +12,7 @@ class BancoDeDados:
         Conecta ao Banco de Dados SQLite e cria as tabelas 'usuarios' e 'tarefas'.
         """
         try:    
-            bd = sqlite3.connect('kanbanana.db', check_same_thread=False)
+            bd = sqlite3.connect('../kanbanana.db', check_same_thread=False)
             c = bd.cursor()
             c.execute('''
                 CREATE TABLE IF NOT EXISTS usuarios (
@@ -103,7 +103,6 @@ class BancoDeDados:
         c.execute(query, (usuario,))
         usuario_encontrado = c.fetchone()
         c.close()
-        print(f"Função verifica_usuario {usuario_encontrado}")
         return usuario_encontrado is not None
 
     @staticmethod
