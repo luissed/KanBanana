@@ -31,15 +31,15 @@ class Tarefa(ft.Container):
         
         super().__init__(**tarefa_style_sheet)
         self.tela_tarefa = tela_tarefa
-        self._descricao = descricao
-        self._usuario_id = usuario_id
-        self._tarefa_id = tarefa_id
-        self._data = data
+        self.__descricao = descricao
+        self.__usuario_id = usuario_id
+        self.__tarefa_id = tarefa_id
+        self.__data = data
 
         #Atributos Flet
         self.tick = ft.Checkbox(on_change = lambda e: self.strike(e))
-        self._text = ft.Text(
-            spans=[ft.TextSpan(text = self._descricao)],
+        self.__text = ft.Text(
+            spans=[ft.TextSpan(text = self.__descricao)],
             size=14,
             expand=True,
         )
@@ -62,8 +62,8 @@ class Tarefa(ft.Container):
             on_click = lambda e: self.delete_text(e),
         )
 
-        self._data_text = ft.Text(
-            spans = [ft.TextSpan(text = self._data.strftime("%a, %d de %b"))],
+        self.__data_text = ft.Text(
+            spans = [ft.TextSpan(text = self.__data.strftime("%a, %d de %b"))],
             size = 14,
             expand = True,
             text_align = ft.TextAlign.CENTER
@@ -75,7 +75,7 @@ class Tarefa(ft.Container):
                         alignment = "start",
                         controls = [
                             self.tick,
-                            self._text,
+                            self.__text,
                             self.previous,
                             self.next,
                             self.delete,
@@ -90,7 +90,7 @@ class Tarefa(ft.Container):
                             ),
                             ft.Text("Concluir "),
                             ft.Container(
-                                content = self._data_text,
+                                content = self.__data_text,
                                 padding = ft.Padding(
                                     left = -2,
                                     top = 0,
@@ -105,31 +105,31 @@ class Tarefa(ft.Container):
     
     @property
     def descricao(self) -> str:
-        return self._descricao
+        return self.__descricao
     
     @property
     def usuario_id(self) -> int:
-        return self._usuario_id
+        return self.__usuario_id
     
     @property
     def tarefa_id(self):
-        return self._tarefa_id
+        return self.__tarefa_id
     
     @property
     def data(self) -> date:
-        return self._data 
+        return self.__data 
 
     @data.setter
     def data(self, data) -> None:
-        self._data = data
+        self.__data = data
 
     @property
     def data_text(self) -> ft.Text:
-        return self._data_text
+        return self.__data_text
     
     @property
     def text(self) -> ft.Text:
-        return self._text
+        return self.__text
     
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -146,11 +146,11 @@ class Tarefa(ft.Container):
             self.tela_tarefa.area_andamento.controls.append(self)
             self.tela_tarefa.area_andamento.update()
             self.tela_tarefa.item_size()
-            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, False, True, False)
+            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, False, True, False)
 
         elif self in self.tela_tarefa.area_andamento.controls:
             self.tick.value = True
-            self._text.spans[0].style = ft.TextStyle(
+            self.__text.spans[0].style = ft.TextStyle(
                 decoration = ft.TextDecoration.LINE_THROUGH,
                 decoration_thickness = 2
             )
@@ -159,11 +159,11 @@ class Tarefa(ft.Container):
             self.tela_tarefa.area_andamento.update()
             self.tela_tarefa.area_concluida.update()
             self.tela_tarefa.item_size()
-            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, True, False, False)
+            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, True, False, False)
 
         elif self in self.tela_tarefa.area_atrasada.controls:
             self.tick.value = True
-            self._text.spans[0].style = ft.TextStyle(
+            self.__text.spans[0].style = ft.TextStyle(
                 decoration = ft.TextDecoration.LINE_THROUGH,
                 decoration_thickness = 2
             )
@@ -172,7 +172,7 @@ class Tarefa(ft.Container):
             self.tela_tarefa.area_atrasada.update()
             self.tela_tarefa.area_concluida.update()
             self.tela_tarefa.item_size()
-            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, True, False, False)
+            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, True, False, False)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -189,25 +189,25 @@ class Tarefa(ft.Container):
             self.tela_tarefa.area_tarefas.controls.append(self)
             self.tela_tarefa.area_tarefas.update()
             self.tela_tarefa.item_size()
-            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, False, False, False)
+            BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, False, False, False)
         
         elif self in self.tela_tarefa.area_concluida.controls:
             self.tick.value = False
-            self._text.spans[0].style = ft.TextStyle()
-            if self._data < date.today():
+            self.__text.spans[0].style = ft.TextStyle()
+            if self.__data < date.today():
                 self.tela_tarefa.area_concluida.controls.remove(self)
                 self.tela_tarefa.area_atrasada.controls.append(self)
                 self.tela_tarefa.area_concluida.update()
                 self.tela_tarefa.area_atrasada.update()
                 self.tela_tarefa.item_size()
-                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, False, False, True)
+                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, False, False, True)
             else:
                 self.tela_tarefa.area_concluida.controls.remove(self)
                 self.tela_tarefa.area_andamento.controls.append(self)
                 self.tela_tarefa.area_concluida.update()
                 self.tela_tarefa.area_andamento.update()
                 self.tela_tarefa.item_size()
-                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.tarefa_id, self.descricao, self.data, False, True, False)
+                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, False, True, False)
     
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ class Tarefa(ft.Container):
         concluida = e.control.value
         if concluida == True:
             if self in self.tela_tarefa.area_andamento.controls:
-                self._text.spans[0].style = ft.TextStyle(
+                self.__text.spans[0].style = ft.TextStyle(
                     decoration = ft.TextDecoration.LINE_THROUGH,
                     decoration_thickness = 2
                 )
@@ -232,9 +232,9 @@ class Tarefa(ft.Container):
                 self.tela_tarefa.area_andamento.update()
                 self.tela_tarefa.area_concluida.update()
                 self.tela_tarefa.item_size()
-                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, True, False, False)
+                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, True, False, False)
             elif self in self.tela_tarefa.area_tarefas.controls:
-                self._text.spans[0].style = ft.TextStyle(
+                self.__text.spans[0].style = ft.TextStyle(
                     decoration = ft.TextDecoration.LINE_THROUGH,
                     decoration_thickness = 2
                 )
@@ -243,9 +243,9 @@ class Tarefa(ft.Container):
                 self.tela_tarefa.area_tarefas.update()
                 self.tela_tarefa.area_concluida.update()
                 self.tela_tarefa.item_size()
-                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, True, False, False)
+                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, True, False, False)
             elif self in self.tela_tarefa.area_atrasada.controls:
-                self._text.spans[0].style = ft.TextStyle(
+                self.__text.spans[0].style = ft.TextStyle(
                     decoration = ft.TextDecoration.LINE_THROUGH,
                     decoration_thickness = 2
                 )
@@ -254,22 +254,22 @@ class Tarefa(ft.Container):
                 self.tela_tarefa.area_atrasada.update()
                 self.tela_tarefa.area_concluida.update()
                 self.tela_tarefa.item_size()
-                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, True, False, False)
+                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, True, False, False)
         else:
-            self._text.spans[0].style = ft.TextStyle()
+            self.__text.spans[0].style = ft.TextStyle()
             self.tela_tarefa.area_concluida.controls.remove(self)
-            if self._data < date.today():
+            if self.__data < date.today():
                 self.tela_tarefa.area_atrasada.controls.append(self)
                 self.tela_tarefa.area_concluida.update()
                 self.tela_tarefa.area_atrasada.update()
                 self.tela_tarefa.item_size()
-                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, False, False, True)
+                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, False, False, True)
             else:
                 self.tela_tarefa.area_tarefas.controls.append(self)
                 self.tela_tarefa.area_concluida.update()
                 self.tela_tarefa.area_tarefas.update()
                 self.tela_tarefa.item_size()
-                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self._tarefa_id, self._descricao, self._data, False, False, False)
+                BancoDeDados.atualizar_tarefa(self.tela_tarefa.bd, self.__tarefa_id, self.__descricao, self.__data, False, False, False)
         self.text.update()
 
     """
@@ -281,7 +281,7 @@ class Tarefa(ft.Container):
     --------------------------------------------------------------------------------------------------------------------
     """
     def delete_text(self, e) -> None:
-        BancoDeDados.remover_tarefa(self.tela_tarefa.bd, self._tarefa_id)
+        BancoDeDados.remover_tarefa(self.tela_tarefa.bd, self.__tarefa_id)
         if self in self.tela_tarefa.area_tarefas.controls:
             self.tela_tarefa.area_tarefas.controls.remove(self)
             self.tela_tarefa.area_tarefas.update()

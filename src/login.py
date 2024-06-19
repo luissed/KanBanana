@@ -19,13 +19,13 @@ Descrição: Configura a tela do aplicativo para o login, com os seguintes eleme
 class Login():
     def __init__(self, page: ft.Page) -> None:
         self.page = page
-        self._usuario = ""
-        self._senha = ""
-        self._bd, self._c = BancoDeDados._conectar_ao_banco()
+        self.__usuario = ""
+        self.__senha = ""
+        self.__bd, self.__c = BancoDeDados._conectar_ao_banco()
 
     @property
     def usuario(self) -> str:
-        return self._usuario
+        return self.__usuario
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ class Login():
     --------------------------------------------------------------------------------------------------------------------
     """
     def verifica_usuario(self) -> bool:
-        usuario_encontrado = BancoDeDados.verificar_credenciais(self._bd, self._usuario, self._senha)
+        usuario_encontrado = BancoDeDados.verificar_credenciais(self.__bd, self.__usuario, self.__senha)
         if usuario_encontrado:
             return usuario_encontrado[0]
         else:
@@ -53,17 +53,17 @@ class Login():
     --------------------------------------------------------------------------------------------------------------------
     """
     def entrar(self, login: ft.Container, principal: Type[Principal], configuracoes: Type[Configuracoes]) -> None:
-        self._usuario = login.content.controls[0].content.controls[2].content.value
-        self._senha = login.content.controls[0].content.controls[3].content.value
-        login.content.controls[0].content.controls[2].content.value = f''
-        login.content.controls[0].content.controls[3].content.value = f''
+        self.__usuario = login.content.controls[0].content.controls[2].content.value
+        self.__senha = login.content.controls[0].content.controls[3].content.value
+        login.content.controls[0].content.controls[2].content.value = f""
+        login.content.controls[0].content.controls[3].content.value = f""
 
-        if len(self._usuario.strip()) == 0 or len(self._senha.strip()) == 0:
+        if len(self.__usuario.strip()) == 0 or len(self.__senha.strip()) == 0:
             if len(login.content.controls[0].content.controls) < 7:
-                login.content.controls[0].content.controls.append(alerta['preenchimento'])
+                login.content.controls[0].content.controls.append(alerta["preenchimento"])
             elif len(login.content.controls[0].content.controls) == 7:
                 login.content.controls[0].content.controls.pop()
-                login.content.controls[0].content.controls.append(alerta['preenchimento'])
+                login.content.controls[0].content.controls.append(alerta["preenchimento"])
         else:
             usuario_id = self.verifica_usuario()
             if usuario_id:
