@@ -21,22 +21,22 @@ Antes de começar, certifique-se de ter instalado:
 ## Como Compilar e Executar
 1. Clone o repositório
 
-´´´
+```
 git clone https://github.com/luissed/Kanbana.git
 cd Kanbana
-´´´
+```
 
 2. Instale o Flet
 
-´´´
+```
 pip install flet
-´´´
+```
 
 3. Abra o arquivo main.py utilizando o Flet
 
-´´´
+```
 flet run .../src/main.py
-´´´
+```
 
 ## Funcionamento do Programa
 1. Crie um usuário e senha clicando em Registrar.
