@@ -133,8 +133,7 @@ class Principal(ft.SafeArea):
     Entradas: -
     Saídas: -
     Descrição: Se o usuário estiver logado, este método obtém todas as tarefas daquele usuário no banco de dados, limpa 
-    os campos de tarefas na interface e adiciona as tarefas nos campos correspondentes (a fazer, atrasada, em andamento e concluídas)
-    e pendente).
+    os campos de tarefas na interface e adiciona as tarefas nos campos correspondentes (a fazer, atrasada, em andamento e concluídas).
     --------------------------------------------------------------------------------------------------------------------
     """
     def carregar_tarefas(self) -> None:
