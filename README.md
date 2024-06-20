@@ -61,6 +61,8 @@ flet run .../src/main.py
 
 # Contato
 Dúvidas podem ser retiradas por meio dos e-mails:
-andreffilho45@ufmg.br - André Ferreira Filho
-laradepaula@ufmg.br - Lara de Paula Santos
-luised@ufmg.br - Luis Eduardo Donizete
+andreffilho45@ufmg.br - André Ferreira Filho;
+
+laradepaula@ufmg.br - Lara de Paula Santos;
+
+luised@ufmg.br - Luis Eduardo Donizete;
