@@ -31,11 +31,11 @@ class Login():
     --------------------------------------------------------------------------------------------------------------------
                                                 Método verifica_usuario
     Entradas: -
-    Saídas: Booleano (True se o usuário existe, None caso contrário)
+    Saídas: ID do usuário se o usuário existe (int), None caso contrário
     Descrição: Verifica as credenciais do usuário e retorna o ID do usuário se encontrado.
     --------------------------------------------------------------------------------------------------------------------
     """
-    def verifica_usuario(self) -> bool:
+    def verifica_usuario(self) -> int | None:
         usuario_encontrado = BancoDeDados.verificar_credenciais(self.__bd, self.__usuario, self.__senha)
         if usuario_encontrado:
             return usuario_encontrado[0]
