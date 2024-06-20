@@ -19,24 +19,29 @@ Antes de começar, certifique-se de ter instalado:
 - Pip (gerenciador de pacotes do Python)
 
 ## Como Compilar e Executar
-1. Clone o repositório
+### 1. Clone o repositório
+Primeiro, clone o repositório para o seu ambiente local e navegue até o diretório do projeto:
 
 ```
 git clone https://github.com/luissed/Kanbana.git
 cd Kanbana
 ```
 
-2. Instale o Flet
+### 2. Instalar Dependências
+Instale o Flet, a biblioteca necessária para executar a aplicação:
 
 ```
 pip install flet
 ```
 
-3. Abra o arquivo main.py utilizando o Flet
+### 3. Executar a Aplicação
+Para executar a aplicação, abra o arquivo main.py utilizando o Flet:
 
 ```
 flet run .../src/main.py
 ```
+### 4. Executar com o Executável
+Como alternativa, você pode baixar o arquivo `Kanbanana.exe` e executá-lo diretamente.
 
 ## Funcionamento do Programa
 1. Crie um usuário e senha clicando em Registrar.
