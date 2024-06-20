@@ -41,7 +41,13 @@ Para executar a aplicação, abra o arquivo main.py utilizando o Flet:
 flet run .../src/main.py
 ```
 ### 4. Executar com o Executável
-Como alternativa, você pode baixar o arquivo `Kanbanana.exe` e executá-lo diretamente.
+Você pode baixar o arquivo `Kanbanana.exe` e executá-lo diretamente em seu computador.
+
+#### Aviso sobre Falsos Positivos de Vírus
+
+Ao executar o `Kanbanana.exe`, você pode receber uma notificação de trojan. Não se preocupe, trata-se de um "falso positivo". Isso ocorre porque a biblioteca Python PyInstaller, frequentemente usada por desenvolvedores para criar arquivos executáveis a partir de scripts Python, é também usada por indivíduos mal-intencionados. Como resultado, alguns antivírus identificam qualquer arquivo gerado com PyInstaller como um possível trojan.
+
+Para mais informações e esclarecimentos, acesse: [PyInstaller False Positive](https://discuss.python.org/t/pyinstaller-false-positive/43171).
 
 ## Funcionamento do Programa
 1. Crie um usuário e senha clicando em Registrar.
